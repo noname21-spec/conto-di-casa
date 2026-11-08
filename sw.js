@@ -1,5 +1,5 @@
 // Conto di Casa — service worker: funziona offline dopo la prima apertura.
-const CACHE = "contodicasa-v2";
+const CACHE = "contodicasa-v3";
 const CORE = [
   "./",
   "./index.html",

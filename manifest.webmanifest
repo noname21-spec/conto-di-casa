@@ -7,8 +7,8 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F3F5FA",
-  "theme_color": "#2A43B5",
+  "background_color": "#0C1430",
+  "theme_color": "#0C1430",
   "categories": ["finance", "lifestyle", "utilities"],
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
