@@ -1,5 +1,5 @@
 // Conto di Casa — service worker: funziona offline, tiene freschi i prezzi e ricorda le scadenze.
-const CACHE = "contodicasa-v4";
+const CACHE = "contodicasa-v5";
 const CORE = [
   "./",
   "./index.html",
@@ -35,6 +35,8 @@ self.addEventListener("fetch", (e) => {
   // Pagina e prezzi dei carburanti: prima la rete, poi la copia salvata.
   if (req.mode === "navigate") { e.respondWith(networkFirst(req, "./index.html")); return; }
   if (url.origin === location.origin && url.pathname.includes("/data/")) { e.respondWith(networkFirst(req)); return; }
+  // Prezzi dei carburanti: prima la rete, poi l'ultima copia (così funzionano anche offline).
+  if (url.hostname.endsWith("supabase.co") && url.pathname.startsWith("/rest/v1/carburanti")) { e.respondWith(networkFirst(req)); return; }
   // Sincronizzazione e accesso: sempre in rete, mai in cache.
   if (url.hostname.endsWith("supabase.co")) return;
   // File dell'app, font e librerie: prima la copia salvata, poi la rete.

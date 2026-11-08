@@ -1503,11 +1503,18 @@ const fmtDay = iso => { try { const [y,m,d] = iso.split("-").map(Number); return
 
 /* ---------- Prezzi carburanti aggiornati (MIMIT, ogni mattina) ---------- */
 let FUEL_LIVE = null, FUEL_PROV = null, FUEL_PROV_KEY = "", userPos = null;
+// I prezzi arrivano ogni mattina in una tabella pubblica su Supabase (aggiornata da una funzione in Europa)
+async function fuelRow(sigla){
+  const r = await fetch(`https://nesozulkxioahnqfgqvt.supabase.co/rest/v1/carburanti?sigla=eq.${encodeURIComponent(sigla)}&select=data`,
+    { headers: { apikey: "sb_publishable_YZne7hPWdSltL6C-Ffbusg_w5dZAISb", Accept: "application/json" }, cache: "no-cache" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const j = await r.json();
+  if (!Array.isArray(j) || !j.length) throw new Error("vuoto");
+  return j[0].data;
+}
 async function loadFuelIndex(){
   try {
-    const r = await fetch("data/carburanti/index.json", {cache:"no-cache"});
-    if (!r.ok) throw 0;
-    FUEL_LIVE = await r.json();
+    FUEL_LIVE = await fuelRow("INDEX");
     renderAll();
     loadProvince();
   } catch(e){ FUEL_LIVE = null; renderFuel(compute()); }
@@ -1517,9 +1524,7 @@ async function loadProvince(){
   if (!FUEL_LIVE || !sg || !FUEL_LIVE.province[sg]){ FUEL_PROV = null; FUEL_PROV_KEY = ""; renderAll(); return; }
   if (FUEL_PROV_KEY === sg) return;
   try {
-    const r = await fetch(`data/carburanti/${sg}.json`, {cache:"no-cache"});
-    if (!r.ok) throw 0;
-    FUEL_PROV = await r.json(); FUEL_PROV_KEY = sg;
+    FUEL_PROV = await fuelRow(sg); FUEL_PROV_KEY = sg;
   } catch(e){ FUEL_PROV = null; FUEL_PROV_KEY = ""; }
   renderAll();
 }
