@@ -1683,9 +1683,18 @@ function icsFor(list){
   });
   return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Conto di Casa//IT", "CALSCALE:GREGORIAN", ...ev, "END:VCALENDAR"].join("\r\n");
 }
-$("icsAll").addEventListener("click", () => {
+$("icsAll").addEventListener("click", async () => {
   const list = state.profile.ricorrenti || [];
   if (!list.length){ $("notifyMsg").textContent = "Non hai ancora spese ricorrenti: aggiungine una scegliendo «Si ripete»."; return; }
+  if (inClaude()){
+    let dl = null;
+    try { dl = await window.claude.use("downloads"); } catch(e){}
+    if (dl){
+      try { await dl.save({ filename: "scadenze-conto-di-casa.ics", data: new Blob([icsFor(list)], {type:"text/calendar"}) }); $("notifyMsg").textContent = "Apri il file scaricato: il calendario aggiunge tutte le scadenze con un avviso 2 giorni prima."; }
+      catch(e){ $("notifyMsg").textContent = "Download annullato."; }
+      return;
+    }
+  }
   try {
     const url = URL.createObjectURL(new Blob([icsFor(list)], {type:"text/calendar"}));
     const a = document.createElement("a"); a.href = url; a.download = "scadenze-conto-di-casa.ics"; document.body.appendChild(a); a.click(); a.remove();
