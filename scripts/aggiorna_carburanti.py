@@ -10,10 +10,33 @@ BASE = "https://www.mimit.gov.it/images/exportCSV/"
 OUT = os.path.join(os.path.dirname(__file__), "..", "data", "carburanti")
 UA = {"User-Agent": "conto-di-casa-bot/1.0 (+https://github.com/noname21-spec/conto-di-casa)"}
 
+HOSTS = ["https://www.mimit.gov.it/images/exportCSV/", "https://mimit.gov.it/images/exportCSV/"]
+BROWSER = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36",
+           "Accept": "text/csv,text/plain,*/*", "Accept-Language": "it-IT,it;q=0.9"}
+
 def scarica(nome):
-    req = urllib.request.Request(BASE + nome, headers=UA)
-    with urllib.request.urlopen(req, timeout=120) as r:
-        raw = r.read()
+    import subprocess, time
+    ultimo = None
+    for tentativo in range(4):
+        for base in HOSTS:
+            try:
+                out = subprocess.run(["curl", "-sSfL", "--retry", "2", "--retry-delay", "10", "--connect-timeout", "60",
+                                      "--max-time", "420", "-H", "User-Agent: " + BROWSER["User-Agent"],
+                                      "-H", "Accept-Language: it-IT,it;q=0.9", base + nome],
+                                     capture_output=True, timeout=480)
+                if out.returncode == 0 and len(out.stdout) > 10000:
+                    raw = out.stdout
+                    break
+                ultimo = out.stderr.decode(errors="replace").strip() or f"codice {out.returncode}"
+            except Exception as e:
+                ultimo = str(e)
+        else:
+            print(f"Tentativo {tentativo + 1} non riuscito per {nome}: {ultimo}", file=sys.stderr)
+            time.sleep(30)
+            continue
+        break
+    else:
+        raise RuntimeError(f"download di {nome} non riuscito: {ultimo}")
     for enc in ("utf-8-sig", "latin-1"):
         try:
             return raw.decode(enc)

@@ -19,6 +19,7 @@ concurrency:
 jobs:
   aggiorna:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - name: Scarica e prepara i dati
