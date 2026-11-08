@@ -1,5 +1,5 @@
 // Conto di Casa — service worker: funziona offline, tiene freschi i prezzi e ricorda le scadenze.
-const CACHE = "contodicasa-v5";
+const CACHE = "contodicasa-v6";
 const CORE = [
   "./",
   "./index.html",

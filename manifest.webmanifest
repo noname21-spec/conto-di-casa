@@ -3,21 +3,64 @@
   "short_name": "Conto di Casa",
   "description": "Le spese di casa, dalla spesa alle utenze, confrontate con le medie della tua zona.",
   "lang": "it",
-  "start_url": "./index.html#panoramica",
+  "start_url": "./#panoramica",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0C1430",
   "theme_color": "#0C1430",
-  "categories": ["finance", "lifestyle", "utilities"],
+  "categories": [
+    "finance",
+    "lifestyle",
+    "utilities"
+  ],
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
   ],
   "shortcuts": [
-    { "name": "Aggiungi spesa", "url": "./index.html#aggiungi", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
-    { "name": "Dove risparmiare", "url": "./index.html#risparmia", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
-  ]
+    {
+      "name": "Aggiungi spesa",
+      "url": "./#aggiungi",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Dove risparmiare",
+      "url": "./#risparmia",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "id": "./"
 }

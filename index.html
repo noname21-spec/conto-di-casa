@@ -1957,11 +1957,20 @@ async function initSync(){
   if (inClaude()){ renderSync(); return; }
   try {
     await loadSupabase();
-    sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, storageKey: "contodicasa-auth", detectSessionInUrl: true, flowType: "pkce" } });
-    const { data } = await sb.auth.getSession();
+    sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, storageKey: "contodicasa-auth", detectSessionInUrl: false, flowType: "pkce" } });
+    const qs = new URLSearchParams(location.search), hs = new URLSearchParams(location.hash.replace(/^#/, ""));
+    const errDesc = qs.get("error_description") || hs.get("error_description");
+    if (errDesc) toast("Accesso non riuscito: " + errDesc.replace(/\+/g, " "), "bad", 7000);
+    let { data } = await sb.auth.getSession();
+    if (!data.session && qs.get("code")){
+      const ex = await sb.auth.exchangeCodeForSession(qs.get("code"));
+      if (ex.error) toast("Accesso non completato: " + ex.error.message + ". Riprova da questa schermata.", "bad", 7000);
+      else data = { session: ex.data.session };
+    }
     sbUser = data.session ? data.session.user : null;
+    if ((qs.get("code") || errDesc) ){ history.replaceState(null, "", location.pathname + (location.hash && !location.hash.includes("access_token") ? location.hash : "#casa")); }
+    try { if (sbUser && sessionStorage.getItem("contodicasa.login")){ sessionStorage.removeItem("contodicasa.login"); toast("Accesso fatto: sincronizzo le tue spese", "ok"); location.hash = "casa"; } } catch(e){}
     sb.auth.onAuthStateChange((_e, session) => { const was = sbUser; sbUser = session ? session.user : null; renderSync(); if (sbUser && !was) syncNow(); });
-    if (location.search.includes("code=")) history.replaceState(null, "", location.pathname + location.hash);
     renderSync();
     if (sbUser) syncNow();
   } catch(e){ syncErr = "Non riesco a caricare il servizio di sincronizzazione."; renderSync(); }
@@ -2012,7 +2021,9 @@ async function syncNow(){
 }
 $("syncLogin").addEventListener("click", async () => {
   if (!sb){ toast("Servizio non disponibile, riprova", "warn"); return; }
-  const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
+  const back = location.origin + location.pathname.replace(/index\.html$/, "");
+  try { sessionStorage.setItem("contodicasa.login", "1"); } catch(e){}
+  const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: back } });
   if (error) toast("Accesso non riuscito: " + error.message, "bad");
 });
 $("syncNow").addEventListener("click", syncNow);
