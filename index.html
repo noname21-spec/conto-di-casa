@@ -616,7 +616,7 @@ section.enter .ybars span{animation:barin .7s var(--ease) both;animation-delay:c
           <li><b>Acqua</b>: Cittadinanzattiva, spesa 2024 per regione, famiglia di 3 persone e 182 m³ (media nazionale 500 €; 528 € nel 2025). <a href="https://quifinanza.it/economia/bollette-acqua-500-euro-famiglia/897593/">QuiFinanza</a>, <a href="https://www.ilrestodelcarlino.it/macerata/cronaca/acqua-sempre-piu-cara-aumentano-06263c84">il Resto del Carlino</a></li>
           <li><b>TARI</b>: Cittadinanzattiva 2025, famiglia di 3 persone in 100 m²; media 340 €, Nord 290, Centro 364, Sud 385. <a href="https://www.blogsicilia.it/oltrelostretto/tari-2025-aumenti-costi-divari-territoriali/1202388/">BlogSicilia</a>, <a href="https://quifinanza.it/fisco-tasse/costo-tari-classifica-capoluoghi-2025/939394/">QuiFinanza</a>, <a href="https://www.lanazione.it/economia/tari-toscana-costo-isxpaou7">La Nazione</a></li>
           <li><b>Carburanti</b>: medie self MIMIT per regione al 3 ottobre 2026, riportate alla media nazionale del 2 novembre 2026 (benzina 2,011 €/l, gasolio 2,241 €/l). <a href="https://www.auto.it/news/attualita/caro-benzina-costi-carburante/2026/10/03-9156188/carburanti_i_prezzi_di_benzina_e_diesel_sabato_3_ottobre">Auto.it</a>, <a href="https://www.affaritaliani.it/economia/carburanti-la-benzina-torna-alle-stelle-ecco-quanto-costa-fare-il-pieno.html">Affaritaliani</a></li>
-          <li><b>Distributori</b>: nell'app installata i prezzi arrivano ogni mattina dagli open data del MIMIT (prezzi alle 8), con le medie della tua provincia. <a href="https://www.mimit.gov.it/it/open-data/elenco-dataset/carburanti-prezzi-praticati-e-anagrafica-degli-impianti">MIMIT</a></li>
+          <li><b>Distributori</b>: quando sono disponibili, i prezzi dei distributori e le medie della provincia vengono dagli open data del MIMIT (prezzi alle 8). <a href="https://www.mimit.gov.it/it/open-data/elenco-dataset/carburanti-prezzi-praticati-e-anagrafica-degli-impianti">MIMIT</a></li>
           <li><b>Capoluoghi</b>: dove Cittadinanzattiva pubblica il dato del capoluogo (per esempio Firenze, Milano, Napoli, Genova) uso quello al posto della media regionale per acqua e TARI.</li>
           <li><b>Stime</b>: consumi di luce e gas per numero di persone, fattore clima e stagione per il gas, adattamento di acqua e TARI alla dimensione della famiglia. Servono a confrontare, non sono dati ufficiali.</li>
         </ul>
@@ -1546,7 +1546,7 @@ function renderFuel(C){
   if (p.fuel === "no"){ box.hidden = true; return; }
   box.hidden = false;
   if (!FUEL_LIVE){
-    box.innerHTML = `<div class="install"><span class="ico" style="background:${CAT.carburante.soft};color:${CAT.carburante.color};width:44px;height:44px;border-radius:12px">${svg("carburante")}</span><div><h2>Distributori più economici</h2><p class="note">Nell'app installata vedi ogni mattina i prezzi aggiornati dei distributori della tua provincia, dai dati del Ministero.</p></div></div>`;
+    box.innerHTML = `<div class="install"><span class="ico" style="background:${CAT.carburante.soft};color:${CAT.carburante.color};width:44px;height:44px;border-radius:12px">${svg("carburante")}</span><div><h2>Distributori più economici</h2><p class="note">I prezzi dei singoli distributori per ora non sono disponibili: il confronto usa la media regionale. Per vederli oggi apri <a href="https://carburanti.mise.gov.it/ospzSearch/">Osservaprezzi carburanti</a> del Ministero.</p></div></div>`;
     return;
   }
   const sg = p.provincia, pi = sg && FUEL_LIVE.province[sg];
