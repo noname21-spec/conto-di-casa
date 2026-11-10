@@ -632,6 +632,42 @@ html:not(.glass) body::before{display:none}
 html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-gradient(150deg,#1A2A78,#0B1240 80%);border-color:#24348C}
 
 [data-user-hidden="1"]{display:none !important}
+.subhide{display:none !important}
+/* pannello spesa: importo in alto, categorie compatte, salva sempre visibile */
+#sheet .catgrid{grid-template-columns:repeat(4,1fr);gap:6px}
+#sheet .catgrid button{padding:8px 2px;gap:4px;font-size:11.5px;border-radius:12px}
+#sheet .catgrid .ico{width:30px;height:30px;border-radius:9px}
+#sheet .catgrid .ico svg{width:17px;height:17px}
+#sheet .amount-field{padding:4px 14px}
+#sheet .amount-field input{font-size:36px}
+.quick{display:flex;gap:8px}
+.quick .photo-btn{flex:1;padding:9px 10px;font-size:13px;border-style:solid;background:var(--paper)}
+.more-fields{border-top:1px solid var(--line);padding-top:10px}
+.more-fields > summary{cursor:pointer;font-weight:600;font-size:14px;list-style:none;display:flex;align-items:center;justify-content:space-between;color:var(--ink)}
+.more-fields > summary::-webkit-details-marker{display:none}
+.more-fields > summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s;margin-right:4px}
+.more-fields[open] > summary::after{transform:rotate(-135deg)}
+.more-fields > .fields{margin-top:12px}
+.save-bar{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom));margin:0 -16px calc(-18px - env(safe-area-inset-bottom));padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to bottom, transparent, var(--surface) 22%);display:flex;flex-direction:column;gap:8px;z-index:2}
+/* Home */
+.hero .cap{font-size:12.5px;opacity:.85;margin-bottom:-4px}
+.slides{align-items:flex-start;transition:height .3s var(--ease)}
+.olist{display:flex;flex-direction:column}
+.orow{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;cursor:pointer;color:var(--ink);font:inherit;font-size:14.5px;width:100%}
+.orow:first-child{border-top:0}
+.orow .v{font-family:var(--f-mono);font-size:14px}
+.orow .chev{width:16px;height:16px;color:var(--muted)}
+/* sotto-schede di Spese */
+.subtabs{position:sticky;top:calc(env(safe-area-inset-top) + 6px);z-index:5}
+/* Casa: schede che si aprono */
+.fold > :first-child{cursor:pointer;position:relative;padding-right:30px;-webkit-tap-highlight-color:transparent}
+.fold > :first-child::after{content:"";position:absolute;right:6px;top:50%;margin-top:-8px;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s}
+.fold.unfold > :first-child::after{transform:rotate(-135deg);top:14px;margin-top:0}
+.fold:not(.unfold){gap:0}
+.fold:not(.unfold) > :not(:first-child){display:none !important}
+.fold:not(.unfold) > :first-child .note{display:none}
+.fold:not(.unfold) > :first-child .fsum{display:block}
+.fsum{display:none;font-size:13px;color:var(--muted);margin-top:2px}
 .search{position:relative}
 .search input{padding-left:38px}
 .search svg.i{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted)}
@@ -693,6 +729,7 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
     <div class="stack" style="gap:10px" id="tilesBlock">
       <div class="card-head"><h2>Voce per voce</h2><span class="small muted">media al mese</span></div>
       <div class="tiles" id="tiles"></div>
+      <div class="card" id="otherTiles" hidden><div class="card-head"><h2 style="font-size:16px">Altre voci</h2><span class="small muted">senza confronto</span></div><div class="olist" id="otherList"></div></div>
     </div>
     <div class="card" id="donutCard"></div>
     <div class="card trend" id="trendCard">
@@ -711,6 +748,7 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
         <button type="button" role="menuitem" id="menuCsv"><svg class="i" viewBox="0 0 24 24"><path d="M8 4h8v4h4v12H4V4zM8 13h8M8 17h5"/></svg>Copia le spese per un foglio di calcolo</button>
       </div></div></div>
     <input type="file" id="bankInput" accept=".csv,text/csv,text/plain,.txt" hidden>
+    <div class="seg subtabs" id="speseTabs" role="tablist" aria-label="Viste delle spese"><button type="button" role="tab" data-sub="mov" aria-pressed="true">Movimenti</button><button type="button" role="tab" data-sub="anno" aria-pressed="false">Anno</button><button type="button" role="tab" data-sub="piano" aria-pressed="false">Pianifica</button></div>
     <div class="card" id="yearCard"></div>
     <div class="card" id="sharedCard" hidden></div>
     <div class="card" id="recCard"></div>
@@ -718,7 +756,7 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
     <div class="card" id="projCard"></div>
     <div class="card" id="warrCard"></div>
     <div class="card" id="c730"></div>
-    <label class="search"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="expSearch" type="search" placeholder="Cerca: Conad, ottobre, più di 50…" aria-label="Cerca nel registro"></label>
+    <label class="search" id="expSearchWrap"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="expSearch" type="search" placeholder="Cerca: Conad, ottobre, più di 50…" aria-label="Cerca nel registro"></label>
     <div class="chips" id="filterChips" role="group" aria-label="Filtra per categoria"></div>
     <div class="card" id="expList"></div>
   </section>
@@ -729,9 +767,13 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
       <div><h2 id="zoneTitle">La tua zona</h2><p class="note" id="zoneSub"></p></div>
       <div class="zlist" id="zoneList"></div>
     </div>
-    <div class="card" id="fuelCard"></div>
+    <div class="card">
+      <div><h2>Supermercati a confronto</h2><p class="note">Quanto paghi la stessa spesa che da Eurospin costa 100 €. Indagine Altroconsumo 2026 su 1.158 negozi in 67 città.</p></div>
+      <div class="chips" id="chainChips" role="group" aria-label="Tipo di negozio"></div>
+      <div id="chains"></div>
+      <button class="btn small more" type="button" id="chainMore" hidden>Mostra tutti i negozi</button>
+    </div>
     <div class="card" id="listaCard"></div>
-    <div class="card" id="inflCard"></div>
     <div class="card" id="prodCard"></div>
     <div class="card">
       <div class="rank-head"><div class="medal" id="medal">–</div><div><h2>Dove costa meno vivere</h2><p class="note" id="rankSub"></p></div></div>
@@ -739,21 +781,18 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
       <button class="btn small more" type="button" id="rankMore">Mostra tutte le regioni</button>
       <p class="note">Spesa, luce, gas, acqua, TARI e carburante in un anno, per una casa come la tua. A destra la differenza rispetto alla tua regione.</p>
     </div>
-    <div class="card">
-      <div><h2>Supermercati a confronto</h2><p class="note">Quanto paghi la stessa spesa che da Eurospin costa 100 €. Indagine Altroconsumo 2026 su 1.158 negozi in 67 città.</p></div>
-      <div class="chips" id="chainChips" role="group" aria-label="Tipo di negozio"></div>
-      <div id="chains"></div>
-    </div>
+    <div class="card" id="fuelCard"></div>
+    <div class="card" id="inflCard"></div>
   </section>
 
   <!-- RISPARMIA -->
   <section id="view-risparmia" class="stack" data-section hidden>
     <div class="save-hero" id="saveHero"></div>
-    <div class="card" id="goalsCard"></div>
-    <div class="card" id="chalCard"></div>
-    <div class="card" id="piggyCard"></div>
-    <div class="card" id="offerCard"></div>
     <div class="stack" id="opps" style="gap:10px"></div>
+    <div class="card" id="piggyCard"></div>
+    <div class="card" id="goalsCard"></div>
+    <div class="card" id="offerCard"></div>
+    <div class="card" id="chalCard"></div>
     <div class="card" id="aiCard" hidden>
       <div class="install"><div class="ico" style="background:var(--accent-soft);color:var(--accent-ink);width:44px;height:44px;border-radius:12px"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></div>
         <div><h2>Chiedi un parere a Claude</h2><p class="note">Legge il riepilogo delle tue spese e ti dice da dove partire.</p></div></div>
@@ -777,8 +816,8 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
       <label id="litersWrap">Litri di carburante al mese, circa<input id="pLiters" type="number" min="0" step="1" inputmode="numeric"><span class="hint">Serve per il confronto tra regioni quando non registri i rifornimenti.</span></label>
       <p class="note" id="saveState"></p>
     </div>
-    <div class="card">
-      <h2>Aspetto</h2>
+    <div class="card" id="aspetto">
+      <div><h2>Aspetto</h2></div>
       <div class="opts" id="themeOpts" role="group" aria-label="Tema" style="grid-template-columns:repeat(4,1fr)"></div>
       <p class="note">Automatico segue l'impostazione del telefono. Nero è il nero assoluto, perfetto per gli schermi OLED e per la batteria.</p>
       <label class="switch">Effetto vetro<input type="checkbox" id="glassToggle"></label>
@@ -808,7 +847,7 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" id="icsAll" type="button">Aggiungi al calendario del telefono</button></div>
       <p class="note" id="notifyMsg"></p>
     </div>
-    <div class="card">
+    <div class="card" id="sharedCardCasa">
       <div><h2>Spese condivise</h2><p class="note">Se dividi le spese con coinquilini o partner, indica chi ha pagato e l'app calcola chi deve quanto.</p></div>
       <label class="switch">Dividi le spese con altre persone<input type="checkbox" id="sharedToggle"></label>
       <div id="sharedSetup" class="stack" style="gap:10px" hidden>
@@ -825,8 +864,8 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
       <div class="install"><img src="icon-192.png" alt="" onerror="this.style.display='none'"><div><h2>Installa l'app</h2><p class="note" id="installText">Aprila dal link di installazione e aggiungila alla schermata Home: funziona anche offline.</p></div></div>
       <button class="btn primary" id="installBtn" type="button" hidden>Installa Conto di Casa</button>
     </div>
-    <div class="card">
-      <h2>I tuoi dati</h2>
+    <div class="card" id="datiCard">
+      <div><h2>I tuoi dati</h2></div>
       <p class="note" id="storeInfo"></p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn small" id="backupBtn" type="button">Copia backup</button>
@@ -895,36 +934,42 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
     <div class="grab"></div>
     <div class="sheet-h"><h2 id="sheetTitle">Nuova spesa</h2><button class="icon-btn" type="button" id="sheetClose" aria-label="Chiudi"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="seg" style="margin-bottom:12px" id="sheetMode" role="group" aria-label="Tipo di movimento"><button type="button" data-mode="out" aria-pressed="true">Uscita</button><button type="button" data-mode="in" aria-pressed="false">Entrata</button></div>
-    <div class="catgrid" id="catGrid" role="group" aria-label="Categoria"></div>
-    <div class="input-row" id="quickIn"><button class="photo-btn mic-btn" type="button" id="micBtn"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="micLabel">Dettala</span></button>
-    <button class="photo-btn" type="button" id="photoBtn"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span id="photoLabel">Leggi da foto</span></button></div>
-    <p class="note" id="sheetHint" hidden></p>
     <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
     <form id="addForm" class="stack" style="gap:12px" autocomplete="off">
       <div class="amount-field"><span>€</span><input id="fAmount" type="number" inputmode="decimal" step="0.01" min="0" required placeholder="0,00" aria-label="Importo in euro"></div>
+<div class="quick" id="quickIn"><button class="photo-btn mic-btn" type="button" id="micBtn"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="micLabel">Dettala</span></button>
+      <button class="photo-btn" type="button" id="photoBtn"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span id="photoLabel">Foto scontrino</span></button></div>
+      <p class="note" id="sheetHint" hidden></p>
+      <div class="catgrid" id="catGrid" role="group" aria-label="Categoria"></div>
       <div class="fields">
         <label>Data<input id="fDate" type="date" required></label>
         <label id="lPeriod">Periodo della bolletta
           <select id="fPeriod"><option value="1">1 mese</option><option value="2">2 mesi</option><option value="3">3 mesi</option><option value="4">4 mesi</option><option value="6">6 mesi</option><option value="12">1 anno</option></select>
         </label>
         <label id="lStore" class="full">Negozio<select id="fStore"></select></label>
-        <label id="lQty" class="full"><span id="qtyLabel">Consumo</span><input id="fQty" type="number" inputmode="decimal" step="0.01" min="0" placeholder="facoltativo"><span class="hint" id="qtyHint"></span></label>
         <label class="full">Nota<input id="fNote" type="text" maxlength="80" placeholder="facoltativa"></label>
+      </div>
+      <details class="more-fields" id="moreFields"><summary>Altri dettagli <span class="small muted" id="moreSum"></span></summary>
+      <div class="fields">
         <label class="full">Si ripete
           <select id="fRepeat"><option value="0">No, è una spesa singola</option><option value="1">Ogni mese</option><option value="2">Ogni 2 mesi</option><option value="3">Ogni 3 mesi</option><option value="6">Ogni 6 mesi</option><option value="12">Ogni anno</option></select>
           <span class="hint">La aggiungo da sola alle prossime scadenze.</span>
         </label>
+        <label id="lQty" class="full"><span id="qtyLabel">Consumo</span><input id="fQty" type="number" inputmode="decimal" step="0.01" min="0" placeholder="facoltativo"><span class="hint" id="qtyHint"></span></label>
         <label class="full" id="lProg" hidden>Progetto<select id="fProg"></select><span class="hint">Le spese di un progetto non entrano nelle medie di casa.</span></label>
         <label class="switch full" id="lWarr">Conserva per la garanzia (2 anni)<input type="checkbox" id="fWarr"></label>
         <label class="switch full" id="lDetr" hidden>Detraibile nel 730<input type="checkbox" id="fDetr"></label>
+      </div>
+      </details>
+      <div class="fields">
         <div class="full stack" id="fShared" style="gap:8px" hidden>
           <label>Pagata da<select id="fPaidBy"></select></label>
           <div><div class="field-title" style="margin-bottom:6px">Divisa tra</div><div class="splitchips" id="fSplit"></div></div>
         </div>
       </div>
-      <button class="btn primary block" type="submit" id="saveBtn">Salva spesa</button>
-      <button class="btn block danger" type="button" id="sheetDel" hidden>Elimina</button>
       <p class="note" id="formMsg" role="status"></p>
+      <div class="save-bar"><button class="btn primary block" type="submit" id="saveBtn">Salva spesa</button>
+      <button class="btn block danger" type="button" id="sheetDel" hidden>Elimina</button></div>
     </form>
   </div>
 </div>
@@ -1356,7 +1401,7 @@ const SECTION_RENDER = {
   spese: C => { renderList(); renderYear(); renderShared(); renderRecurring(); renderDeadlines(); renderProjects(); renderWarranties(); render730(); },
   confronta: C => { renderCompare(C); renderFuel(C); renderLista(); renderInflation(); renderProducts(); },
   risparmia: C => { renderSave(C); renderGoals(); renderChallenges(); renderPiggy(C); renderOffers(C); },
-  casa: C => { renderProfile(); renderHomeEditor(); renderSync(); renderLockCard(); },
+  casa: C => { renderProfile(); renderHomeEditor(); renderSync(); renderLockCard(); renderFoldSums(); },
 };
 let dirty = new Set(Object.keys(SECTION_RENDER));
 const currentView = () => { const v = (visibleSection() || {}).id || "view-panoramica"; return v.replace("view-", ""); };
@@ -1393,13 +1438,13 @@ function renderHome(C){
     } else vtxt = "Aggiungi spesa o bollette per il confronto";
     const max = Math.max(C.youSum, C.benchSum) || 1;
     hero.className = "hero" + (r == null ? "" : r <= 0.97 ? " good" : r > 1.3 ? " bad" : r >= 1.03 ? " warn" : "");
-    hero.innerHTML = `<div><div class="label">Spendi in media</div><div class="big"><span data-count="${Math.round(C.allMonthly)}" data-key="hero">${eur.format(C.allMonthly)}</span><small>al mese</small></div></div>
+    hero.innerHTML = `<div><div class="label">Ogni mese spendi in media</div><div class="big"><span data-count="${Math.round(C.allMonthly)}" data-key="hero">${eur.format(C.allMonthly)}</span><small>al mese</small></div></div>
       <span class="verdict ${vcls}"><span class="ic">${svg(vic)}</span>${esc(vtxt)}</span>
-      ${r != null ? `<div class="vs">
+      ${r != null ? `<div class="cap">Spesa, bollette e carburante, al mese</div><div class="vs">
         <span>Tu</span><span class="t"><i style="width:${C.youSum/max*100}%"></i></span><span class="v" data-count="${Math.round(C.youSum)}" data-key="you">${eur.format(C.youSum)}</span>
         <span>Zona</span><span class="t"><i class="z" style="width:${C.benchSum/max*100}%"></i></span><span class="v" data-count="${Math.round(C.benchSum)}" data-key="zone">${eur.format(C.benchSum)}</span>
       </div>` : ""}
-      <div class="foot">Confronto su spesa, utenze e carburante · ${ymLabel(nowYm).replace(/^\w/, c => c.toUpperCase())} finora: ${eur.format(thisMonth)}</div>`;
+      <div class="foot">${ymLabel(nowYm).replace(/^\w/, c => c.toUpperCase())} finora: <b>${eur.format(thisMonth)}</b></div>`;
   }
   const tot = totalSavings(C.opps);
   $("saveCta").innerHTML = `<span class="coin">${svg("coin")}</span><span>${tot > 0 ? `<span class="small">Puoi risparmiare fino a</span><b><span data-count="${Math.round(tot)}" data-key="savecta">${eur.format(tot)}</span> l'anno</b>` : `<b style="font-size:16px">Consigli per risparmiare</b><span class="small">Bonus, tariffe e trucchi utili</span>`}</span><span class="arr">${svg("arrow")}</span>`;
@@ -1424,8 +1469,10 @@ function renderHome(C){
       ${ref ? `<div class="mini"><span>Tu</span><span class="t"><i style="width:${you/max*100}%;background:${c.color}"></i></span><span>Zona</span><span class="t"><i style="width:${ref/max*100}%;background:var(--muted);opacity:.45"></i></span></div>` : ""}
     </button>`;
   }).join("");
-  const others = CATS.filter(c => !c.bench && C.stats[c.id]).map(c => `<button class="tile" type="button" data-goto="spese" data-filter="${c.id}" style="--i:${ti++}"><div class="top">${icoBox(c)}<span class="nm">${esc(c.name)}</span></div><div class="amt" data-count="${Math.round(C.stats[c.id].monthly)}" data-key="t-${c.id}">${eur.format(C.stats[c.id].monthly)}</div><div class="msg none">Solo registro, senza confronto</div></button>`).join("");
-  $("tiles").innerHTML = tiles + others;
+  const others = CATS.filter(c => !c.bench && C.stats[c.id]).sort((a, b) => C.stats[b.id].monthly - C.stats[a.id].monthly);
+  $("tiles").innerHTML = tiles;
+  $("otherTiles").hidden = !others.length;
+  $("otherList").innerHTML = others.map(c => `<button class="orow" type="button" data-goto="spese" data-filter="${c.id}">${icoBox(c)}<span>${esc(c.name)}</span><span class="v">${eur.format(C.stats[c.id].monthly)}<span class="small muted">/mese</span></span>${svg("arrow").replace('class="i"', 'class="i chev"')}</button>`).join("");
   renderSoglieHome(C);
   renderTrend(C.all);
 }
@@ -1528,7 +1575,11 @@ function renderCompare(C){
   const types = [["","Tutti"],["discount","Discount"],["super","Supermercati"],["iper","Ipermercati"]];
   $("chainChips").innerHTML = types.map(([k,l]) => `<button type="button" data-ct="${k}" aria-pressed="${chainType === k}">${l}</button>`).join("");
   const col = idx => idx <= 105 ? "var(--good)" : idx <= 120 ? "var(--info)" : idx <= 128 ? "var(--warn)" : "var(--bad)";
-  $("chains").innerHTML = CHAINS.filter(c => !chainType || c[2] === chainType).map(c => `<div class="chain ${youStores[c[0]] ? "mine" : ""}"><span class="nm">${esc(c[0])}${youStores[c[0]] ? ' <span class="tag">ci vai tu</span>' : ""}</span><span class="track"><i style="width:${(c[1]-90)/(135-90)*100}%;background:${col(c[1])}"></i></span><span class="v">${eur.format(c[1])}</span></div>`).join("");
+  const chainList = CHAINS.filter(c => !chainType || c[2] === chainType);
+  const shortList = chainType || chainAll ? chainList : chainList.filter((c, i) => i < 6 || youStores[c[0]]);
+  $("chainMore").hidden = !!chainType || chainList.length === shortList.length && !chainAll;
+  $("chainMore").textContent = chainAll ? "Mostra meno" : `Mostra tutti i ${chainList.length} negozi`;
+  $("chains").innerHTML = shortList.map(c => `<div class="chain ${youStores[c[0]] ? "mine" : ""}"><span class="nm">${esc(c[0])}${youStores[c[0]] ? ' <span class="tag">ci vai tu</span>' : ""}</span><span class="track"><i style="width:${(c[1]-90)/(135-90)*100}%;background:${col(c[1])}"></i></span><span class="v">${eur.format(c[1])}</span></div>`).join("");
 }
 
 /* --- Risparmia --- */
@@ -1587,7 +1638,7 @@ function route(){
   window.scrollTo({top:0});
   renderView(v);
   enterSection($("view-" + v));
-  if (pendingScroll){ const el = $(pendingScroll); pendingScroll = null; if (el) setTimeout(() => el.scrollIntoView({behavior: reducedMotion() ? "auto" : "smooth", block:"start"}), 120); }
+  if (pendingScroll){ const el = $(pendingScroll); pendingScroll = null; if (el && subOf(el.id)) setSub(subOf(el.id)); if (el) openFold(el); if (el) setTimeout(() => el.scrollIntoView({behavior: reducedMotion() ? "auto" : "smooth", block:"start"}), 120); }
 }
 let pendingScroll = null, enterTimer = null;
 const reducedMotion = () => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch(e){ return false; } };
@@ -1671,7 +1722,7 @@ function openSheet(cat, opts = {}){
     sheetSplit = [...sh.people];
     renderSplit();
   }
-  $("photoLabel").textContent = "Leggi da foto di scontrino o bolletta";
+  $("photoLabel").textContent = "Foto scontrino";
   lastFocus = document.activeElement;
   $("formMsg").textContent = "";
   $("fDate").value = todayISO();
@@ -1691,6 +1742,8 @@ function openSheet(cat, opts = {}){
     }, 0);
   } else { $("fNote").value = ""; $("fQty").value = ""; $("fAmount").value = ""; }
   renderSheetCat();
+  $("moreFields").open = !!(editing && (editing.detr || editing.qty || editing.prog));
+  setTimeout(updMoreSum, 0);
   $("sheet").hidden = false;
   document.body.style.overflow = "hidden";
   setTimeout(() => $("fAmount").focus(), 50);
@@ -1706,6 +1759,16 @@ function closeSheet(){
 $("sheetClose").addEventListener("click", closeSheet);
 $("sheet").addEventListener("click", e => { if (e.target === $("sheet")) closeSheet(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("sheet").hidden) closeSheet(); });
+function updMoreSum(){
+  const bits = [];
+  const rp = Number($("fRepeat").value) || 0; if (rp && !$("fRepeat").closest("label").hidden) bits.push(rp === 1 ? "ogni mese" : rp === 12 ? "ogni anno" : `ogni ${rp} mesi`);
+  if (!$("lDetr").hidden && $("fDetr").checked) bits.push("730");
+  if (!$("lWarr").hidden && $("fWarr").checked) bits.push("garanzia");
+  if (!$("lProg").hidden && $("fProg").value) bits.push("progetto");
+  if (!$("lQty").hidden && $("fQty").value) bits.push("consumo");
+  $("moreSum").textContent = bits.join(" · ");
+}
+$("addForm").addEventListener("change", updMoreSum);
 $("sheetMode").addEventListener("click", e => { const b = e.target.closest("[data-mode]"); if (!b) return; sheetIn = b.dataset.mode === "in"; sheetCat = sheetIn ? "stipendio" : "spesa"; renderSheetCat(); });
 $("sheetDel").addEventListener("click", () => { if (!editing) return; const it = editing, ym = ymOf(it.date); closeSheet(); deleteItem(it, ym); });
 $("catGrid").addEventListener("click", e => { const b = e.target.closest("button[data-cat]"); if (!b) return; sheetCat = b.dataset.cat; renderSheetCat(); $("fAmount").focus(); });
@@ -1761,7 +1824,7 @@ document.addEventListener("click", e => {
   const open = e.target.closest("[data-open-sheet]"); if (open){ openSheet(); return; }
   const add = e.target.closest("[data-add]"); if (add){ openSheet(add.dataset.add); return; }
   const sg = e.target.closest("[data-soglie]"); if (sg){ e.preventDefault(); pendingScroll = "soglieCard"; if (location.hash === "#casa") route(); else location.hash = "casa"; return; }
-  const go = e.target.closest("[data-goto]"); if (go){ filterCat = go.dataset.filter || ""; renderList(); location.hash = go.dataset.goto; return; }
+  const go = e.target.closest("[data-goto]"); if (go){ filterCat = go.dataset.filter || ""; if (go.dataset.goto === "spese") setSub("mov"); renderList(); location.hash = go.dataset.goto; return; }
 });
 $("filterChips").addEventListener("click", e => { const b = e.target.closest("button[data-f]"); if (!b) return; filterCat = b.dataset.f; renderList(); });
 $("expList").addEventListener("click", e => {
@@ -1808,6 +1871,8 @@ async function undoDelete(){
 }
 $("chainChips").addEventListener("click", e => { const b = e.target.closest("button[data-ct]"); if (!b) return; chainType = b.dataset.ct; renderCompare(compute()); });
 $("rankMore").addEventListener("click", () => { rankAll = !rankAll; renderCompare(compute()); });
+let chainAll = false;
+$("chainMore").addEventListener("click", () => { chainAll = !chainAll; renderCompare(compute()); });
 $("clearExamples").addEventListener("click", () => { state.profile.examplesOff = true; persistProfile(); renderAll(); });
 
 const setProfile = (key, val) => { state.profile[key] = val; persistProfile(); renderAll(); };
@@ -2962,7 +3027,7 @@ function renderMonthDots(){
   const sl = [...$("monthSlides").children].filter(x => !x.hidden);
   $("monthCard").hidden = !sl.length;
   $("monthDots").hidden = sl.length < 2;
-  const upd = () => { const w = $("monthSlides").clientWidth || 1; const i = Math.round($("monthSlides").scrollLeft / (w + 16)); $("monthDots").innerHTML = sl.map((_, k) => `<i class="${k === i ? "on" : ""}"></i>`).join(""); };
+  const upd = () => { const w = $("monthSlides").clientWidth || 1; const i = Math.round($("monthSlides").scrollLeft / (w + 16)); $("monthDots").innerHTML = sl.map((_, k) => `<i class="${k === i ? "on" : ""}"></i>`).join(""); const cur = sl[Math.min(i, sl.length - 1)]; if (cur && cur.offsetHeight) $("monthSlides").style.height = cur.offsetHeight + "px"; };
   upd();
   if (!$("monthSlides").dataset.bound){ $("monthSlides").dataset.bound = "1"; $("monthSlides").addEventListener("scroll", () => requestAnimationFrame(renderMonthDots), {passive:true}); }
 }
@@ -3460,6 +3525,54 @@ $("encGo").addEventListener("click", async () => {
   $("lockMsg").textContent = "Dati cifrati con il tuo PIN. Con la cifratura l'impronta non basta più ad aprire l'app: serve il PIN. Se lo dimentichi, i dati di questo telefono non si recuperano, solo quelli sincronizzati con Google.";
   renderLockCard();
 });
+
+
+/* ---------- Spese: Movimenti / Anno / Pianifica ---------- */
+const SUBS = { mov: ["expSearchWrap","filterChips","expList"], anno: ["yearCard","sharedCard","c730"], piano: ["recCard","deadlineCard","projCard","warrCard"] };
+let speseSub = "mov";
+function setSub(k){
+  speseSub = k;
+  Object.entries(SUBS).forEach(([key, ids]) => ids.forEach(id => $(id).classList.toggle("subhide", key !== k)));
+  [...$("speseTabs").children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sub === k)));
+}
+$("speseTabs").addEventListener("click", e => { const b = e.target.closest("[data-sub]"); if (!b) return; setSub(b.dataset.sub); enterSection($("view-spese")); });
+setSub("mov");
+const subOf = id => Object.keys(SUBS).find(k => SUBS[k].includes(id));
+
+/* ---------- Casa: schede che si aprono con un tocco ---------- */
+const FOLD_SUM = {
+  aspetto: () => ({ light: "Chiaro", dark: "Scuro", black: "Nero", auto: "Automatico" }[state.profile.theme] || "Scuro") + (glassOn() ? " · vetro" : ""),
+  soglieCard: () => { const n = Object.entries(state.profile.soglie || {}).filter(([, v]) => Number(v) > 0).length; return n ? `${n} ${n === 1 ? "soglia attiva" : "soglie attive"}` : "Nessuna soglia"; },
+  homeEdit: () => { const h = ((state.profile.home || {}).hidden || []).length; return h ? `${h} ${h === 1 ? "scheda nascosta" : "schede nascoste"}` : "Tutte le schede visibili"; },
+  lockCard: () => { const c = lockCfg(); return c ? (c.enc ? "PIN attivo, dati cifrati" : "PIN attivo") : "Spento"; },
+  notifyCard: () => state.profile.notify ? "Attivi" : "Spenti",
+  sharedCardCasa: () => (state.profile.shared && state.profile.shared.on) ? (state.profile.shared.people || []).join(", ") : "Spento",
+  syncCard: () => $("syncState").textContent.trim().slice(0, 60) || "Non collegato",
+};
+function initFolds(){
+  [...$("view-casa").children].forEach((card, i) => {
+    if (i === 0 || !card.classList.contains("card") || card.querySelector("details.sources")) return;
+    card.classList.add("fold");
+  });
+}
+function renderFoldSums(){
+  document.querySelectorAll("#view-casa .fold").forEach(card => {
+    const head = card.firstElementChild; if (!head) return;
+    head.setAttribute("role", "button"); head.setAttribute("tabindex", "0"); head.setAttribute("aria-expanded", String(card.classList.contains("unfold")));
+    const fn = FOLD_SUM[card.id]; if (!fn) return;
+    let el = head.querySelector(".fsum"); if (!el){ el = document.createElement("p"); el.className = "fsum"; (head.querySelector("h2") || head).after(el); }
+    try { el.textContent = fn(); } catch(e){}
+  });
+}
+function openFold(card){ if (card && card.classList.contains("fold") && !card.classList.contains("unfold")){ card.classList.add("unfold"); renderFoldSums(); } }
+$("view-casa").addEventListener("click", e => {
+  const card = e.target.closest(".fold"); if (!card) return;
+  const head = card.firstElementChild;
+  if (!head.contains(e.target) || e.target.closest("input,select,button:not([role=button]),a,label")) return;
+  card.classList.toggle("unfold"); renderFoldSums();
+});
+$("view-casa").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches(".fold > :first-child")){ e.preventDefault(); e.target.click(); } });
+initFolds();
 
 /* ---------- Tema chiaro / scuro ---------- */
 const mqDark = (() => { try { return matchMedia("(prefers-color-scheme: dark)"); } catch(e){ return null; } })();
