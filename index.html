@@ -457,6 +457,57 @@ section.enter .ybars span{animation:barin .7s var(--ease) both;animation-delay:c
 .sync-state .dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
 .sync-state .dot.on{background:var(--good)}
 
+/* Pannello generico (import, riepilogo) */
+.panel-list{display:flex;flex-direction:column;max-height:46vh;overflow-y:auto;border:1px solid var(--line);border-radius:12px}
+.imp{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;padding:9px 10px;border-top:1px solid var(--line)}
+.imp:first-child{border-top:0}
+.imp input[type=checkbox]{width:20px;height:20px;min-height:0;accent-color:var(--accent);grid-row:span 2}
+.imp .d{font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.imp .a{font-family:var(--f-mono);font-size:13.5px;text-align:right}
+.imp select{grid-column:2 / 4;min-height:34px;padding:5px 8px;font-size:13.5px}
+.imp.off{opacity:.5}
+.sticky-foot{position:sticky;bottom:0;background:var(--surface);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+/* Previsione */
+.fc-big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.fc-big b{font-family:var(--f-display);font-size:28px}
+.fc-track{position:relative;height:12px;border-radius:6px;background:var(--paper);overflow:hidden}
+.fc-track i{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+.fc-track i.now{background:var(--accent)}
+.fc-track i.proj{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--accent) 45%,transparent) 0 6px,transparent 6px 10px)}
+.fc-track b{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--bad)}
+/* Offerte e obiettivi */
+.offer,.goalrow,.prod{display:grid;gap:6px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.offer{grid-template-columns:1fr auto auto}
+.offer:first-child,.goalrow:first-child,.prod:first-child{border-top:0}
+.offer .n,.goalrow .n,.prod .n{font-weight:600;font-size:14.5px}
+.offer .s,.goalrow .s,.prod .s{font-size:12.5px;color:var(--muted)}
+.inline-form{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.inline-form .full{grid-column:1/-1}
+.goalrow{grid-template-columns:52px 1fr auto}
+.ring{width:52px;height:52px}
+.ring circle{fill:none;stroke-width:6}
+.ring .bg{stroke:var(--line)}
+.ring .fg{stroke:var(--good);stroke-linecap:round;transition:stroke-dasharray .9s var(--ease)}
+.ring text{fill:var(--ink);font-family:var(--f-mono);font-size:11px;font-weight:500}
+.prod{grid-template-columns:1fr auto}
+.prod .v{text-align:right;font-family:var(--f-mono)}
+.prod .v small{display:block;font-family:var(--f-body);font-size:11.5px;color:var(--muted)}
+/* Blocco */
+.lock{position:fixed;inset:0;z-index:90;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px}
+.lock img{width:72px;height:72px;border-radius:20px}
+.pin-dots{display:flex;gap:12px}
+.pin-dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted)}
+.pin-dots i.on{background:var(--accent);border-color:var(--accent)}
+.pin-dots.err{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.keypad{display:grid;grid-template-columns:repeat(3,72px);gap:12px}
+.keypad button{height:64px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-family:var(--f-display);font-size:24px;font-weight:600;color:var(--ink);cursor:pointer}
+.keypad button:active{transform:scale(.94);background:var(--accent-soft)}
+.keypad button.ghost{border:0;background:transparent;font-size:14px;font-family:var(--f-body)}
+/* Riepilogo */
+.sum-head{display:flex;justify-content:space-between;align-items:baseline}
+.sum-head b{font-family:var(--f-display);font-size:30px}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none !important;transition:none !important}
   .splash{display:none}
@@ -485,6 +536,7 @@ section.enter .ybars span{animation:barin .7s var(--ease) both;animation-delay:c
     <div class="hero" id="hero"></div>
     <div class="card" id="dueCard" hidden></div>
     <a class="save-cta" href="#risparmia" id="saveCta"></a>
+    <div class="card" id="forecastCard" hidden></div>
     <div class="card" id="soglieHome"></div>
     <div class="stack" style="gap:10px">
       <div class="card-head"><h2>Voce per voce</h2><span class="small muted">media al mese</span></div>
@@ -500,7 +552,9 @@ section.enter .ybars span{animation:barin .7s var(--ease) both;animation-delay:c
 
   <!-- SPESE -->
   <section id="view-spese" class="stack" data-section hidden>
-    <div class="card-head"><h2>Le tue spese</h2><button class="btn primary small" type="button" data-open-sheet><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Aggiungi</button></div>
+    <div class="card-head"><h2>Le tue spese</h2><div style="display:flex;gap:8px"><button class="btn small" type="button" id="importBtn2"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Importa</button><button class="btn primary small" type="button" data-open-sheet><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Aggiungi</button></div></div>
+    <input type="file" id="bankInput" accept=".csv,text/csv,text/plain,.txt" hidden>
+    <button class="btn" type="button" id="summaryBtn" style="justify-content:flex-start"><svg class="i" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 15v-3M12 15V9M16 15v-5"/></svg>Riepilogo del mese da condividere</button>
     <div class="card" id="yearCard"></div>
     <div class="card" id="sharedCard" hidden></div>
     <div class="card" id="recCard"></div>
@@ -515,6 +569,7 @@ section.enter .ybars span{animation:barin .7s var(--ease) both;animation-delay:c
       <div class="zlist" id="zoneList"></div>
     </div>
     <div class="card" id="fuelCard"></div>
+    <div class="card" id="prodCard"></div>
     <div class="card">
       <div class="rank-head"><div class="medal" id="medal">–</div><div><h2>Dove costa meno vivere</h2><p class="note" id="rankSub"></p></div></div>
       <div class="rank" id="rank"></div>
@@ -531,7 +586,9 @@ section.enter .ybars span{animation:barin .7s var(--ease) both;animation-delay:c
   <!-- RISPARMIA -->
   <section id="view-risparmia" class="stack" data-section hidden>
     <div class="save-hero" id="saveHero"></div>
+    <div class="card" id="goalsCard"></div>
     <div class="card" id="piggyCard"></div>
+    <div class="card" id="offerCard"></div>
     <div class="stack" id="opps" style="gap:10px"></div>
     <div class="card" id="aiCard" hidden>
       <div class="install"><div class="ico" style="background:var(--accent-soft);color:var(--accent-ink);width:44px;height:44px;border-radius:12px"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></div>
@@ -565,6 +622,16 @@ section.enter .ybars span{animation:barin .7s var(--ease) both;animation-delay:c
       <div><h2>Soglie mensili</h2><p class="note">Quanto vuoi spendere al massimo ogni mese. Ti avviso all'80% e quando la superi. Lascia vuoto per nessuna soglia.</p></div>
       <div class="slist" id="soglieList"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" id="soglieZona" type="button">Usa le medie della zona</button><button class="btn small" id="soglieReset" type="button">Togli tutte</button></div>
+    </div>
+    <div class="card" id="lockCard">
+      <div><h2>Blocco dell'app</h2><p class="note">Chiede un PIN, o l'impronta dove il telefono lo permette, quando apri l'app. Protegge da occhi curiosi su questo dispositivo; i dati non vengono cifrati.</p></div>
+      <label class="switch">Chiedi il PIN all'apertura<input type="checkbox" id="lockToggle"></label>
+      <div id="lockSetup" class="stack" style="gap:8px" hidden>
+        <div class="inline-form"><input id="pin1" type="password" inputmode="numeric" maxlength="6" placeholder="Nuovo PIN (4-6 cifre)" aria-label="Nuovo PIN"><input id="pin2" type="password" inputmode="numeric" maxlength="6" placeholder="Ripeti il PIN" aria-label="Ripeti il PIN"></div>
+        <button class="btn small primary" id="pinSave" type="button" style="align-self:flex-start">Salva il PIN</button>
+      </div>
+      <button class="btn small" id="bioBtn" type="button" hidden style="align-self:flex-start">Usa anche l'impronta</button>
+      <p class="note" id="lockMsg"></p>
     </div>
     <div class="card" id="notifyCard">
       <div><h2>Promemoria</h2><p class="note">Ti avviso qualche giorno prima delle spese ricorrenti, come bollette e abbonamenti.</p></div>
@@ -636,6 +703,21 @@ section.enter .ybars span{animation:barin .7s var(--ease) both;animation-delay:c
 </nav>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="lock" id="lockScreen" hidden role="dialog" aria-modal="true" aria-label="App bloccata">
+  <img src="icon-192.png" alt="" onerror="this.style.display='none'">
+  <h2>Inserisci il PIN</h2>
+  <div class="pin-dots" id="pinDots"></div>
+  <div class="keypad" id="keypad"></div>
+  <button class="btn small" id="lockBio" type="button" hidden>Sblocca con l'impronta</button>
+  <p class="note" id="lockHint" style="text-align:center;max-width:280px"></p>
+</div>
+<div class="backdrop" id="panel" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="panelTitle">
+    <div class="grab"></div>
+    <div class="sheet-h"><h2 id="panelTitle"></h2><button class="icon-btn" type="button" id="panelClose" aria-label="Chiudi"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div id="panelBody" class="stack" style="gap:12px"></div>
+  </div>
+</div>
 <div class="splash" id="splash" hidden aria-hidden="true"></div>
 
 <!-- Foglio "Nuova spesa" -->
@@ -789,8 +871,8 @@ const $ = id => document.getElementById(id);
 const people = n => n >= 5 ? "5 o più persone" : n === 1 ? "1 persona" : n + " persone";
 
 /* ---------- Stato ---------- */
-const DEFAULT_PROFILE = { region:"emilia-romagna", provincia:"BO", comune:"", size:2, gas:"risc", fuel:"benzina", liters:40, examplesOff:false, theme:"dark", soglie:{}, ricorrenti:[], shared:{on:false, people:["Io"]}, saldi:[], obiettivo:500, notify:false, updatedAt:0 };
-const state = { profile:{...DEFAULT_PROFILE}, months:{}, examples:[], storeMode:"memory", deleted:[] };
+const DEFAULT_PROFILE = { region:"emilia-romagna", provincia:"BO", comune:"", size:2, gas:"risc", fuel:"benzina", liters:40, examplesOff:false, theme:"dark", soglie:{}, ricorrenti:[], shared:{on:false, people:["Io"]}, saldi:[], obiettivo:500, notify:false, updatedAt:0, regole:{}, obiettivi:[], offerte:{luce:[], gas:[]} };
+const state = { profile:{...DEFAULT_PROFILE}, months:{}, examples:[], storeMode:"memory", deleted:[], prezzi:[] };
 
 function buildExamples(){
   const base = ymAdd(ymOf(todayISO()), -1);
@@ -828,13 +910,13 @@ const writeChains = {};
 const queueWrite = (key, fn) => (writeChains[key] = (writeChains[key] || Promise.resolve()).catch(()=>{}).then(fn));
 const LS_KEY = "contodicasa.v1";
 function lsLoad(){ try{ const raw = localStorage.getItem(LS_KEY); return raw ? JSON.parse(raw) : null; }catch(e){ return null; } }
-function lsSave(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({profile:state.profile, months:state.months, deleted:state.deleted})); return true; }catch(e){ return false; } }
+function lsSave(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({profile:state.profile, months:state.months, deleted:state.deleted, prezzi:state.prezzi})); return true; }catch(e){ return false; } }
 const setStatus = t => { $("status").textContent = t || ""; };
 
 async function initStore(){
   const fallback = why => {
     const saved = lsLoad();
-    if (saved){ state.profile = {...DEFAULT_PROFILE, ...saved.profile}; state.months = saved.months || {}; state.deleted = saved.deleted || []; }
+    if (saved){ state.profile = {...DEFAULT_PROFILE, ...saved.profile}; state.months = saved.months || {}; state.deleted = saved.deleted || []; state.prezzi = saved.prezzi || []; }
     state.storeMode = lsSave() ? "local" : "memory";
     afterLoad(); if (why) setStatus(why);
   };
@@ -855,6 +937,7 @@ async function initStore(){
     snap.docs.forEach(d => {
       const v = d.data() || {};
       if (d.id === "profile") state.profile = {...DEFAULT_PROFILE, ...v};
+      else if (d.id === "prezzi" && Array.isArray(v.items)) state.prezzi = v.items;
       else if (d.id.startsWith("m-") && Array.isArray(v.items)) months[d.id.slice(2)] = v.items;
     });
     state.months = months; state.storeMode = "db"; setStatus("");
@@ -1060,6 +1143,7 @@ function renderAll(){
   const C = compute();
   renderHeader(C); renderHome(C); renderList(); renderCompare(C); renderSave(C); renderProfile();
   renderDue(); renderDonut(C); renderYear(); renderRecurring(); renderShared(); renderFuel(C); renderPiggy(C); renderSync();
+  renderForecast(); renderGoals(); renderOffers(C); renderProducts(); renderLockCard();
   animateNumbers(visibleSection(), false);
 }
 function renderHeader(C){
@@ -1322,6 +1406,7 @@ function renderSheetCat(){
 }
 function openSheet(cat){
   if (cat) sheetCat = cat;
+  lastItems = [];
   $("fRepeat").value = "0";
   const sh = state.profile.shared || {};
   $("fShared").hidden = !sh.on;
@@ -1378,6 +1463,8 @@ $("addForm").addEventListener("submit", async e => {
   }
   const ym = ymOf(date);
   (state.months[ym] ||= []).push(item);
+  if (lastItems.length && c.id === "spesa") savePrices(lastItems, item.store || "Negozio non indicato", date);
+  lastItems = [];
   $("fAmount").value = ""; $("fQty").value = ""; $("fNote").value = "";
   renderAll();
   closeSheet();
@@ -1886,12 +1973,12 @@ $("photoInput").addEventListener("change", async () => {
 });
 async function readWithClaude(file){
   try {
-    const prompt = `Leggi la foto di uno scontrino o di una bolletta italiana. Rispondi SOLO con un oggetto JSON con questi campi: {"importo": numero totale da pagare in euro, "data": "AAAA-MM-GG" della spesa o della scadenza, "categoria": una tra ${CATS.map(c => c.id).join(", ")}, "negozio": nome dell'insegna se è uno scontrino del supermercato oppure null, "consumo": numero di kWh, Smc, m³ o litri se presente oppure null, "mesi": numero di mesi coperti se è una bolletta oppure null}. Se un dato non c'è, usa null.`;
+    const prompt = `Leggi la foto di uno scontrino o di una bolletta italiana. Rispondi SOLO con un oggetto JSON con questi campi: {"importo": numero totale da pagare in euro, "data": "AAAA-MM-GG" della spesa o della scadenza, "categoria": una tra ${CATS.map(c => c.id).join(", ")}, "negozio": nome dell'insegna se è uno scontrino del supermercato oppure null, "consumo": numero di kWh, Smc, m³ o litri se presente oppure null, "mesi": numero di mesi coperti se è una bolletta oppure null, "prodotti": se è uno scontrino, l'elenco delle righe acquistate come [{"nome": testo della riga, "prezzo": numero in euro}] (senza totali, sconti e IVA), altrimenti []}. Se un dato non c'è, usa null.`;
     const r = await sampleFn(prompt, { images:[file], cache:false });
     const m = (r.text || "").match(/\{[\s\S]*\}/);
     if (!m) return null;
     const j = JSON.parse(m[0]);
-    return { amount: Number(j.importo) || null, date: j.data || null, cat: CAT[j.categoria] ? j.categoria : null, store: j.negozio || null, qty: Number(j.consumo) || null, period: Number(j.mesi) || null, by: "Claude" };
+    return { amount: Number(j.importo) || null, date: j.data || null, cat: CAT[j.categoria] ? j.categoria : null, store: j.negozio || null, qty: Number(j.consumo) || null, period: Number(j.mesi) || null, items: Array.isArray(j.prodotti) ? j.prodotti.filter(x => x && x.nome && Number(x.prezzo) > 0).map(x => ({ name: String(x.nome), price: Number(x.prezzo) })) : [], by: "Claude" };
   } catch(e){ return null; }
 }
 let tessLoading = null;
@@ -1931,7 +2018,15 @@ function parseReceipt(text){
   const shop = CHAINS.map(c => c[0]).sort((a,b) => b.length - a.length).find(n => up.includes(n.toUpperCase().replace("'", "")) || up.includes(n.toUpperCase()));
   if (shop){ store = shop; cat = cat || "spesa"; }
   if (!cat && /SCONTRINO|DOCUMENTO COMMERCIALE|RT\b/.test(up)) cat = "spesa";
-  return { amount, date, cat, store, qty, by: "il lettore" };
+  const items = [];
+  T.split("\n").forEach(line => {
+    const m = line.trim().match(/^(.{3,40}?)\s+(\d{1,3}[,.]\d{2})\s*[A-Z€*]{0,2}$/i);
+    if (!m) return;
+    const name = m[1].replace(/\s{2,}/g, " ").trim();
+    if (/TOTALE|SUBTOTALE|IVA|RESTO|CONTANTE|PAGAMENTO|SCONTO|CARTA|BANCOMAT|ARROTOND|IMPORTO|PUNTI|BUONO/i.test(name) || !/[A-Z]{3}/i.test(name)) return;
+    items.push({ name, price: Number(m[2].replace(",", ".")) });
+  });
+  return { amount, date, cat, store, qty, items, by: "il lettore" };
 }
 function applyParsed(r){
   if (!r || (!r.amount && !r.date && !r.cat)){ $("photoLabel").textContent = "Non trovo importo o data: inseriscili a mano."; return; }
@@ -1941,7 +2036,8 @@ function applyParsed(r){
   if (r.store && [...$("fStore").options].some(o => o.value === r.store || o.text === r.store)) $("fStore").value = r.store;
   if (r.qty && CAT[sheetCat].qty) $("fQty").value = r.qty;
   if (r.period && CAT[sheetCat].period && [...$("fPeriod").options].some(o => o.value === String(r.period))) $("fPeriod").value = String(r.period);
-  $("photoLabel").textContent = `Letto da ${r.by}: controlla i dati e salva`;
+  lastItems = (r.items || []).slice(0, 80);
+  $("photoLabel").textContent = `Letto da ${r.by}: controlla i dati e salva` + (lastItems.length ? ` · ${lastItems.length} prodotti` : "");
 }
 
 /* ---------- Sincronizzazione (Supabase, accesso Google) ---------- */
@@ -1994,6 +2090,8 @@ function mergeRemote(remote){
   [...Object.values((remote && remote.months) || {}).flat(), ...realItems()].forEach(it => { if (it && it.id && !del.has(it.id)) byId.set(it.id, it); });
   const months = {};
   byId.forEach(it => (months[ymOf(it.date)] ||= []).push(it));
+  const pz = new Map(); [...((remote && remote.prezzi) || []), ...state.prezzi].forEach(x => { if (x && x.id) pz.set(x.id, x); });
+  state.prezzi = [...pz.values()].sort((a,b) => a.date.localeCompare(b.date)).slice(-1500);
   const rp = remote && remote.profile;
   if (rp && (rp.updatedAt || 0) > (state.profile.updatedAt || 0)) state.profile = {...DEFAULT_PROFILE, ...rp};
   state.deleted = [...del].slice(-2000);
@@ -2009,12 +2107,13 @@ async function syncNow(){
     const { data, error } = await sb.from("conto_di_casa_data").select("data").eq("user_id", sbUser.id).maybeSingle();
     if (error) throw error;
     const changed = mergeRemote(data ? data.data : null);
-    const payload = { profile: state.profile, months: state.months, deleted: state.deleted };
+    const payload = { profile: state.profile, months: state.months, deleted: state.deleted, prezzi: state.prezzi };
     const up = await sb.from("conto_di_casa_data").upsert({ user_id: sbUser.id, data: payload, updated_at: new Date().toISOString() });
     if (up.error) throw up.error;
     lastSync = new Date(); syncErr = "";
     if (state.storeMode === "local") lsSave();
     if (state.storeMode === "db" && col) await Promise.all(Object.keys(state.months).map(ym => queueWrite("m-"+ym, () => col.doc("m-"+ym).set({items: state.months[ym]})))).catch(()=>{});
+    if (state.storeMode === "db" && col) queueWrite("prezzi", () => col.doc("prezzi").set({items: state.prezzi})).catch(()=>{});
     if (changed) renderAll();
   } catch(e){ syncErr = "Sincronizzazione non riuscita. Riprova più tardi."; toast(syncErr, "warn"); }
   syncBusy = false; renderSync();
@@ -2039,6 +2138,487 @@ function afterLoad(){
   loadProvince();
   notifyDue();
   initSync();
+}
+
+
+/* ---------- Pannello generico ---------- */
+function openPanel(title, html){
+  $("panelTitle").textContent = title;
+  $("panelBody").innerHTML = html;
+  $("panel").hidden = false; document.body.style.overflow = "hidden";
+}
+function closePanel(){
+  const p = $("panel"); if (p.hidden || p.classList.contains("closing")) return;
+  const done = () => { p.classList.remove("closing"); p.hidden = true; document.body.style.overflow = ""; };
+  if (reducedMotion()){ done(); return; }
+  p.classList.add("closing"); setTimeout(done, 240);
+}
+$("panelClose").addEventListener("click", closePanel);
+$("panel").addEventListener("click", e => { if (e.target === $("panel")) closePanel(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("panel").hidden) closePanel(); });
+const hashStr = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+
+/* ---------- 1. Import dall'estratto conto ---------- */
+const BANK_RULES = [
+  [/\bTARI\b|RIFIUTI|IGIENE URBANA/, "tari"],
+  [/F24|AGENZIA (DELLE )?ENTRATE|PAGOPA|BOLLO AUTO|\bIMU\b|ACI BOLLO|TASSA/, "tasse"],
+  [/ENEL|EDISON|SORGENIA|OCTOPUS|PLENITUDE|A2A|IREN|ACEA ENERGIA|ENERGIA|ELETTRIC|\bLUCE\b|E\.ON|ILLUMIA|HERA COMM/, "luce"],
+  [/\bGAS\b|ITALGAS|ESTRA|AGSM/, "gas"],
+  [/ACQUA|IDRIC|ACQUEDOTTO|HERA S\.?P\.?A|GRUPPO HERA/, "acqua"],
+  [/\bTIM\b|TELECOM|VODAFONE|ILIAD|WIND|WINDTRE|FASTWEB|\bHO\.?\s?MOBILE|KENA|VERY MOBILE|SKY WIFI|TISCALI|POSTEMOBILE|LYCAMOBILE/, "telefono"],
+  [/NETFLIX|SPOTIFY|DISNEY|PRIME VIDEO|AMAZON PRIME|DAZN|NOW TV|SKY ITALIA|APPLE\.COM|ICLOUD|GOOGLE ONE|YOUTUBE|AUDIBLE|PALESTRA|MCFIT|VIRGIN ACTIVE|CHATGPT|OPENAI|CLAUDE\.AI|ANTHROPIC|CRUNCHYROLL|PARAMOUNT/, "abbonamenti"],
+  [/\bENI\b|AGIP|\bQ8\b|\bIP\b|TAMOIL|ESSO|SHELL|API-IP|CARBUR|BENZIN|DISTRIB|ENILIVE|TOTALERG/, "carburante"],
+  [/TPER|TRENITALIA|ITALO|\bATM\b|\bATAC\b|\bGTT\b|AUTOSTRAD|TELEPASS|UBER|FREE ?NOW|ITTAXI|TAXI|PARCHEGG|EASYPARK|MYCICERO|FLIXBUS|RYANAIR|EASYJET|WIZZ|ITA AIRWAYS/, "trasporti"],
+  [/UCI|CINEMA|THE SPACE|TEATRO|TICKETONE|RISTOR|PIZZ|TRATTORIA|OSTERIA|\bBAR\b|CAFF|PUB\b|MCDONALD|BURGER|KFC|DELIVEROO|JUST ?EAT|GLOVO|STEAM|PLAYSTATION|NINTENDO|XBOX|LIBRERIA|FELTRINELLI|MONDADORI|DECATHLON|BOOKING|AIRBNB/, "svago"],
+];
+const BANK_SKIP = /GIROCONTO|GIRO.?CONTO|TRASFERIMENTO TRA|RICARICA (CARTA|CONTO|PREPAGATA)|TOP.?UP|PRELIEVO|PRELEV|EXCHANGE|CAMBIO VALUTA|RIMBORSO|STORNO|ACCREDITO/;
+const STOP = new Set(["PAGAMENTO","POS","CARTA","ADDEBITO","DEL","DI","DA","SDD","SEPA","DIRECT","DEBIT","ACQUISTO","OPERAZIONE","NUMERO","N","VIA","IN","A","IL","LA","PRESSO","DATA","ORA","CONTACTLESS","MASTERCARD","VISA","BANCOMAT","APPLE","PAY","GOOGLE","ADD","SPA","SRL","S","P","PAG","CIRCUITO","MAESTRO","DEBITO","PREPAGATA","CRV","RIF","CRO","BONIFICO","FAVORE","EFFETTUATO","ORDINANTE","BENEFICIARIO","TRN","PER","CON"]);
+const normDesc = t => String(t || "").toUpperCase().replace(/[^A-Z0-9À-Ù\.\s&'-]/g, " ").replace(/\s+/g, " ").trim();
+function descKey(t){
+  const toks = normDesc(t).split(" ").filter(w => w.length > 1 && !STOP.has(w) && !/^\d/.test(w) && !/\d{3,}/.test(w));
+  return toks.slice(0, 2).join(" ");
+}
+function guessCat(desc){
+  const D = normDesc(desc), k = descKey(desc), rg = state.profile.regole || {};
+  if (k && rg[k]) return { cat: rg[k] };
+  for (const key of Object.keys(rg)){ if (key && D.includes(key)) return { cat: rg[key] }; }
+  const shop = CHAINS.map(c => c[0]).concat(["Despar","Coop Alleanza","Bennet","Iper","Crai","Sigma","Simply","Ekom","Tuodì","Paghi Poco","Basko"]).sort((a,b) => b.length - a.length)
+    .find(n => new RegExp("\\b" + n.toUpperCase().replace(/[.*+?^${}()|[\]\\']/g, ".?") + "\\b").test(D));
+  if (shop) return { cat: "spesa", store: CHAIN_IDX[shop] ? shop : undefined };
+  if (/SUPERMERC|MARKET|ALIMENTAR|FRUTTA|MACELLER|PANETTER|FORNO/.test(D)) return { cat: "spesa" };
+  for (const [re, cat] of BANK_RULES) if (re.test(D)) return { cat };
+  return { cat: "altro" };
+}
+function splitCsv(line, sep){
+  const out = []; let cur = "", q = false;
+  for (let i = 0; i < line.length; i++){
+    const ch = line[i];
+    if (ch === '"'){ if (q && line[i+1] === '"'){ cur += '"'; i++; } else q = !q; }
+    else if (ch === sep && !q){ out.push(cur); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur); return out.map(x => x.trim());
+}
+function parseAmount(v){
+  let t = String(v || "").replace(/[€\s]|EUR/gi, "").replace(/^\((.*)\)$/, "-$1");
+  if (!t) return null;
+  const lc = t.lastIndexOf(","), ld = t.lastIndexOf(".");
+  if (lc > -1 && ld > -1) t = lc > ld ? t.replace(/\./g, "").replace(",", ".") : t.replace(/,/g, "");
+  else if (lc > -1) t = t.replace(/\./g, "").replace(",", ".");
+  else if (ld > -1 && /^-?\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, "");
+  const n = Number(t); return Number.isFinite(n) ? n : null;
+}
+function parseDateAny(v){
+  const t = String(v || "").trim();
+  let m = t.match(/^(\d{4})-(\d{2})-(\d{2})/); if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = t.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
+  if (m){ const y = m[3].length === 2 ? "20" + m[3] : m[3]; return `${y}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`; }
+  return null;
+}
+function parseBankCsv(text){
+  const lines = text.replace(/^﻿/, "").split(/\r?\n/).filter(l => l.trim());
+  let head = null;
+  for (let i = 0; i < Math.min(40, lines.length) && !head; i++){
+    for (const sep of [";", ",", "\t", "|"]){
+      const cells = splitCsv(lines[i], sep).map(c => c.toLowerCase());
+      if (cells.length >= 3 && cells.some(c => /data|date/.test(c)) && cells.some(c => /importo|amount|uscit|addebit|dare|avere|entrat|accredit|debit|credit/.test(c))){ head = { i, sep, cells }; break; }
+    }
+  }
+  if (!head) return null;
+  const find = res => { for (const re of res){ const k = head.cells.findIndex(c => re.test(c)); if (k > -1) return k; } return -1; };
+  const iDate = find([/data operazione|data op/, /started date|completed date/, /data contabile|data valuta/, /^data$|^date$/, /data|date/]);
+  const iDesc = find([/descrizione estesa|descrizione operazione/, /^descrizione$|description/, /causale|dettagli|operazione|beneficiario|merchant|esercente|concetto|note/]);
+  const iAmt = find([/^importo$|^amount$|importo \(eur\)|importo eur/, /importo/]);
+  const iOut = find([/uscit|addebit|^dare$|debit/]);
+  const iIn = find([/entrat|accredit|^avere$|credit/]);
+  const iState = find([/^state$|stato/]);
+  if (iDate < 0 || (iAmt < 0 && iOut < 0)) return null;
+  const rows = [];
+  for (let r = head.i + 1; r < lines.length; r++){
+    const c = splitCsv(lines[r], head.sep);
+    if (c.length < 3) continue;
+    if (iState > -1 && /REVERTED|DECLINED|FAILED|ANNULL/i.test(c[iState] || "")) continue;
+    const date = parseDateAny(c[iDate]); if (!date) continue;
+    let out = null;
+    if (iOut > -1 && c[iOut]){ const v = parseAmount(c[iOut]); if (v) out = Math.abs(v); }
+    else if (iAmt > -1){ const v = parseAmount(c[iAmt]); if (v != null) out = v < 0 ? -v : (iIn > -1 || iOut > -1 ? null : -v); }
+    if (out == null || out <= 0) continue;
+    const desc = (iDesc > -1 ? c[iDesc] : c.filter((_, k) => k !== iDate && k !== iAmt).join(" ")).replace(/\s+/g, " ").trim();
+    rows.push({ date, amount: Math.round(out * 100) / 100, desc });
+  }
+  // file con soli importi positivi: li tratto come uscite
+  if (!rows.length && iAmt > -1){
+    for (let r = head.i + 1; r < lines.length; r++){
+      const c = splitCsv(lines[r], head.sep); const date = parseDateAny(c[iDate]); const v = parseAmount(c[iAmt]);
+      if (date && v > 0) rows.push({ date, amount: Math.round(v * 100) / 100, desc: (iDesc > -1 ? c[iDesc] : "").trim() });
+    }
+  }
+  return rows;
+}
+let importRows = [];
+$("importBtn2").addEventListener("click", () => $("bankInput").click());
+$("bankInput").addEventListener("change", async () => {
+  const file = $("bankInput").files[0]; $("bankInput").value = "";
+  if (!file) return;
+  if (/\.xlsx?$/i.test(file.name)){ toast("Serve il file CSV: dall'home banking scegli «Esporta» in formato CSV", "warn", 6000); return; }
+  let text = await file.text();
+  if (text.includes("�")){ try { text = new TextDecoder("windows-1252").decode(await file.arrayBuffer()); } catch(e){} }
+  const rows = parseBankCsv(text);
+  if (!rows || !rows.length){ toast("Non riconosco questo file: servono almeno colonne con data e importo", "bad", 6000); return; }
+  const have = new Set(realItems().map(x => x.id)), del = new Set(state.deleted);
+  importRows = rows.map(r => {
+    const id = "bk-" + hashStr(r.date + "|" + r.amount + "|" + normDesc(r.desc));
+    const g = guessCat(r.desc);
+    return { ...r, id, cat: g.cat, store: g.store, on: !BANK_SKIP.test(normDesc(r.desc)) && !have.has(id) && !del.has(id), dup: have.has(id) };
+  }).sort((a,b) => b.date.localeCompare(a.date));
+  renderImport();
+});
+function renderImport(){
+  const opts = CATS.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("");
+  const n = importRows.filter(r => r.on).length, tot = importRows.filter(r => r.on).reduce((s,r) => s + r.amount, 0);
+  const dups = importRows.filter(r => r.dup).length;
+  openPanel("Importa dall'estratto conto", `
+    <p class="note">${importRows.length} uscite trovate${dups ? `, ${dups} già presenti` : ""}. Ho tolto giroconti, ricariche e prelievi: puoi riattivarli. Se cambi una categoria, la ricordo per le prossime volte. Le bollette le conto su più mesi: luce e gas 2, acqua 3, TARI 6.</p>
+    <div class="panel-list" id="impList">${importRows.map((r, k) => `<div class="imp ${r.on ? "" : "off"}" data-k="${k}">
+      <input type="checkbox" ${r.on ? "checked" : ""} aria-label="Importa ${esc(r.desc)}" data-imp-on="${k}">
+      <span class="d">${esc(new Date(r.date + "T12:00").toLocaleDateString("it-IT", {day:"numeric", month:"short"}))} · ${esc(r.desc || "senza descrizione")}</span>
+      <span class="a">${eur2.format(r.amount)}</span>
+      <select data-imp-cat="${k}" aria-label="Categoria">${opts.replace(`value="${r.cat}"`, `value="${r.cat}" selected`)}</select></div>`).join("")}</div>
+    <div class="sticky-foot"><button class="btn primary block" type="button" id="impGo">Importa ${n} spese · ${eur.format(tot)}</button></div>`);
+  $("impList").addEventListener("change", e => {
+    const on = e.target.closest("[data-imp-on]"), sel = e.target.closest("[data-imp-cat]");
+    if (on){ const r = importRows[Number(on.dataset.impOn)]; r.on = on.checked; on.closest(".imp").classList.toggle("off", !r.on); }
+    if (sel){
+      const r = importRows[Number(sel.dataset.impCat)]; r.cat = sel.value;
+      const key = descKey(r.desc);
+      if (key){ state.profile.regole = {...(state.profile.regole || {}), [key]: r.cat};
+        importRows.forEach((x, k) => { if (k !== Number(sel.dataset.impCat) && descKey(x.desc) === key){ x.cat = r.cat; const s2 = $("impList").querySelector(`[data-imp-cat="${k}"]`); if (s2) s2.value = r.cat; } }); }
+    }
+    const nn = importRows.filter(r => r.on).length, tt = importRows.filter(r => r.on).reduce((s,r) => s + r.amount, 0);
+    $("impGo").textContent = `Importa ${nn} spese · ${eur.format(tt)}`;
+  });
+  $("impGo").addEventListener("click", async () => {
+    const sel = importRows.filter(r => r.on && !r.dup);
+    if (!sel.length){ toast("Nessuna spesa selezionata", "warn"); return; }
+    const touched = new Set();
+    sel.forEach(r => {
+      const it = { id: r.id, date: r.date, cat: r.cat, amount: r.amount, note: r.desc.slice(0, 60), bank: true };
+      const per = { luce: 2, gas: 2, acqua: 3, tari: 6 }[r.cat];
+      if (per) it.period = per;
+      if (r.store && r.cat === "spesa") it.store = r.store;
+      (state.months[ymOf(r.date)] ||= []).push(it); touched.add(ymOf(r.date));
+    });
+    persistProfile(); closePanel(); renderAll();
+    toast(`Importate ${sel.length} spese`, "ok");
+    for (const ym of touched) await persistMonth(ym);
+  });
+}
+
+/* ---------- 2. Prezzi dei prodotti dagli scontrini ---------- */
+let lastItems = [];
+const prodKey = n => normDesc(n).replace(/\b\d+([.,]\d+)?\s?(G|GR|KG|ML|CL|L|LT|PZ|X)\b/g, "").replace(/\s+/g, " ").trim();
+function savePrices(list, store, date){
+  const add = list.map(x => ({ id: "pz-" + hashStr(date + store + x.name + x.price), name: String(x.name).slice(0, 50), key: prodKey(x.name), price: Math.round(x.price * 100) / 100, store, date }));
+  const ids = new Set(state.prezzi.map(x => x.id));
+  state.prezzi = [...state.prezzi, ...add.filter(x => !ids.has(x.id) && x.key)].slice(-1500);
+  persistPrezzi();
+}
+function persistPrezzi(){
+  scheduleSync();
+  if (state.storeMode === "db" && col) queueWrite("prezzi", () => col.doc("prezzi").set({items: state.prezzi})).catch(() => setStatus("Salvataggio dei prezzi non riuscito."));
+  else if (state.storeMode === "local") lsSave();
+}
+let prodQuery = "";
+function renderProducts(){
+  const box = $("prodCard");
+  const groups = new Map();
+  state.prezzi.forEach(x => { const g = groups.get(x.key) || { name: x.name, byStore: new Map(), last: "" }; const prev = g.byStore.get(x.store); if (!prev || prev.date <= x.date) g.byStore.set(x.store, x); if (x.date > g.last){ g.last = x.date; g.name = x.name; } groups.set(x.key, g); });
+  const q = prodKey(prodQuery);
+  let list = [...groups.entries()].filter(([k]) => !q || k.includes(q)).sort((a,b) => (b[1].byStore.size - a[1].byStore.size) || b[1].last.localeCompare(a[1].last)).slice(0, 12);
+  const keepFocus = document.activeElement && document.activeElement.id === "prodQ";
+  box.innerHTML = `<div class="card-head"><div><h2>I prezzi che hai pagato</h2><p class="note">Dai prodotti letti nelle foto degli scontrini. Più negozi fotografi, più confronti vedi.</p></div></div>
+    ${state.prezzi.length ? `<input id="prodQ" type="search" placeholder="Cerca un prodotto, per esempio latte" value="${esc(prodQuery)}" aria-label="Cerca un prodotto">
+    <div>${list.length ? list.map(([k, g]) => { const arr = [...g.byStore.values()].sort((a,b) => a.price - b.price); const best = arr[0], worst = arr.at(-1);
+      return `<div class="prod"><div style="min-width:0"><div class="n">${esc(g.name)}</div><div class="s">${arr.map(x => `${esc(x.store)} ${eur2.format(x.price)}`).join(" · ")}</div></div>
+        <div class="v">${eur2.format(best.price)}<small>${arr.length > 1 && worst.price > best.price ? `da ${esc(best.store)}, −${eur2.format(worst.price - best.price)}` : esc(best.store)}</small></div></div>`; }).join("") : `<p class="note">Nessun prodotto trovato.</p>`}</div>`
+    : `<div class="install">${ILLU.receipt}<p class="note">Quando aggiungi una spesa con «Leggi da foto», salvo anche i singoli prodotti e il loro prezzo.</p></div>`}`;
+  const qi = $("prodQ");
+  if (qi){ qi.addEventListener("input", () => { prodQuery = qi.value; renderProducts(); }); if (keepFocus){ qi.focus(); qi.setSelectionRange(qi.value.length, qi.value.length); } }
+}
+
+/* ---------- 3. Previsione di fine mese ---------- */
+const VARIABLE = new Set(["spesa","carburante","svago","trasporti","altro"]);
+function forecast(){
+  const ym = ymOf(todayISO()), day = Number(todayISO().slice(8, 10)), dim = lastDay(ym);
+  const m = monthAlloc(ym);
+  const pending = {};
+  (state.profile.ricorrenti || []).forEach(r => { const d = recDate(r, ym); const nd = nextDue(r); if (nd === d && d > todayISO()){ const amt = r.period ? r.amount / r.period : r.amount; pending[r.cat] = (pending[r.cat] || 0) + amt; } });
+  const frac = Math.max(day, 3) / dim;
+  const cats = {};
+  let now = 0, proj = 0;
+  CATS.forEach(c => {
+    const spent = m[c.id] || 0, pend = pending[c.id] || 0;
+    const p = VARIABLE.has(c.id) ? spent / frac + pend : spent + pend;
+    if (spent || pend){ cats[c.id] = { spent, proj: p }; now += spent; proj += p; }
+  });
+  return { ym, day, dim, now, proj, cats };
+}
+function renderForecast(){
+  const box = $("forecastCard");
+  if (showingExamples()){ box.hidden = true; return; }
+  const F = forecast();
+  if (!F.now && !F.proj){ box.hidden = true; return; }
+  box.hidden = false;
+  const sg = state.profile.soglie || {}, lim = Number(sg._tot) || 0;
+  const max = Math.max(F.proj, lim, 1) * 1.08;
+  const overs = Object.entries(F.cats).filter(([k, v]) => Number(sg[k]) > 0 && v.proj > Number(sg[k]) && v.spent <= Number(sg[k]));
+  box.innerHTML = `<div class="card-head"><h2>Previsione di fine ${MONTHS[Number(F.ym.slice(5)) - 1]}</h2><span class="small muted">giorno ${F.day} di ${F.dim}</span></div>
+    <div class="fc-big"><b data-count="${Math.round(F.proj)}" data-key="fc">${eur.format(F.proj)}</b><span class="small muted">a questo ritmo · finora ${eur.format(F.now)}</span></div>
+    <div class="fc-track" aria-hidden="true"><i class="proj" style="width:${F.proj / max * 100}%"></i><i class="now" style="width:${F.now / max * 100}%"></i>${lim ? `<b style="left:${lim / max * 100}%"></b>` : ""}</div>
+    ${lim ? `<p class="small ${F.proj > lim ? "up" : "down"}" style="font-weight:600">${F.proj > lim ? `Rischi di superare la soglia del mese di ${eur.format(F.proj - lim)}` : `Resti sotto la soglia del mese di ${eur.format(lim - F.proj)}`}</p>` : ""}
+    ${overs.map(([k, v]) => `<p class="small up" style="font-weight:600">${esc(CAT[k].name)}: a questo ritmo ${eur.format(v.proj)}, soglia ${eur.format(Number(sg[k]))}</p>`).join("")}
+    <p class="note">Spesa, carburante, svago e trasporti vanno avanti al ritmo di questi giorni; bollette e ricorrenti contano per quello che devi ancora pagare.${F.day < 5 ? " Nei primi giorni del mese la stima è poco affidabile." : ""}</p>`;
+}
+
+/* ---------- 4. Simulatore offerte luce e gas ---------- */
+let offerKind = "luce";
+function currentAnnual(kind, C){
+  const s = C.stats[kind], b = C.B[kind];
+  if (!s) return { qty: b.qtyYear, cost: b.monthly * 12, fromBills: false };
+  let qty;
+  if (s.qtyMonthly){
+    if (kind === "gas" && state.profile.gas === "risc"){ let w = 0; for (let k = 0; k < s.span; k++) w += GAS_SEASON[Number(ymAdd(s.minYm, k).slice(5)) - 1]; qty = s.qtyMonthly * s.span / Math.max(w, 0.05); }
+    else qty = s.qtyMonthly * 12;
+  } else qty = b.qtyYear;
+  const cost = s.unit ? qty * s.unit : s.monthly * 12;
+  return { qty, cost, fromBills: !!s.qtyMonthly };
+}
+function renderOffers(C){
+  const box = $("offerCard"), p = state.profile;
+  if (offerKind === "gas" && p.gas === "no") offerKind = "luce";
+  const cur = currentAnnual(offerKind, C), unit = offerKind === "luce" ? "kWh" : "Smc";
+  const list = ((p.offerte || {})[offerKind] || []).slice().sort((a,b) => a.annuo - b.annuo);
+  box.innerHTML = `<div class="card-head"><h2>Confronta un'offerta</h2></div>
+    <div class="seg" role="group" aria-label="Fornitura"><button type="button" data-ok="luce" aria-pressed="${offerKind === "luce"}">Luce</button>${p.gas !== "no" ? `<button type="button" data-ok="gas" aria-pressed="${offerKind === "gas"}">Gas</button>` : ""}</div>
+    <p class="small">I tuoi consumi: <b>${int.format(cur.qty)} ${unit} l'anno</b> ${cur.fromBills ? "(dalle tue bollette)" : "(stima per una casa come la tua)"}. Oggi spendi circa <b>${eur.format(cur.cost)} l'anno</b>.</p>
+    <p class="note">1. Apri il <a href="https://www.ilportaleofferte.it/portaleOfferte/">Portale Offerte di ARERA</a> e inserisci ${int.format(cur.qty)} ${unit}. 2. Copia qui la «spesa annua stimata» delle offerte che ti interessano.</p>
+    <div class="inline-form"><input id="offName" type="text" maxlength="40" placeholder="Nome dell'offerta" aria-label="Nome dell'offerta"><input id="offCost" type="number" inputmode="decimal" min="0" step="1" placeholder="Spesa annua €" aria-label="Spesa annua stimata in euro"><button class="btn small primary full" id="offAdd" type="button">Aggiungi al confronto</button></div>
+    <div>${list.map(o => { const d = cur.cost - o.annuo; return `<div class="offer"><div><div class="n">${esc(o.nome)}</div><div class="s">${eur.format(o.annuo)} l'anno</div></div><span class="num ${d > 0 ? "down" : "up"}" style="font-weight:600">${d > 0 ? "−" + eur.format(d) : "+" + eur.format(-d)}</span><button class="icon-btn" type="button" data-off-del="${esc(o.id)}" aria-label="Togli ${esc(o.nome)}">${svg("trash")}</button></div>`; }).join("")}</div>
+    ${list.length && cur.cost - list[0].annuo > 0 ? `<p class="small down" style="font-weight:600">Con «${esc(list[0].nome)}» risparmieresti circa ${eur.format(cur.cost - list[0].annuo)} l'anno. Cambiare fornitore è gratis e non interrompe la fornitura.</p>` : ""}`;
+}
+$("offerCard").addEventListener("click", e => {
+  const k = e.target.closest("[data-ok]"); if (k){ offerKind = k.dataset.ok; renderOffers(compute()); return; }
+  const d = e.target.closest("[data-off-del]");
+  if (d){ const of = {...(state.profile.offerte || {luce:[], gas:[]})}; of[offerKind] = (of[offerKind] || []).filter(o => o.id !== d.dataset.offDel); setProfile("offerte", of); return; }
+  if (e.target.closest("#offAdd")){
+    const nome = $("offName").value.trim(), annuo = Number(String($("offCost").value).replace(",", "."));
+    if (!nome || !(annuo > 0)){ toast("Scrivi il nome dell'offerta e la spesa annua", "warn"); return; }
+    const of = {...(state.profile.offerte || {luce:[], gas:[]})};
+    of[offerKind] = [...(of[offerKind] || []), { id: "o" + Date.now().toString(36), nome, annuo: Math.round(annuo) }];
+    setProfile("offerte", of);
+  }
+});
+
+/* ---------- 5. Obiettivi di risparmio ---------- */
+function goalInfo(g){
+  const today = todayISO(), nowYm = ymOf(today);
+  const left = Math.max(0, g.importo - (g.versato || 0));
+  const monthsLeft = Math.max(1, ymDiff(nowYm, g.scadenza) + 1);
+  const total = Math.max(1, ymDiff(ymOf(g.creato), g.scadenza) + 1), gone = Math.min(total, Math.max(0, ymDiff(ymOf(g.creato), nowYm)));
+  const expected = g.importo * gone / total;
+  const pct = Math.min(1, (g.versato || 0) / g.importo);
+  const late = g.scadenza < nowYm && left > 0;
+  return { left, monthsLeft, perMonth: left / monthsLeft, pct, onTrack: (g.versato || 0) >= expected - 1, late, done: left <= 0 };
+}
+function renderGoals(){
+  const box = $("goalsCard"), list = state.profile.obiettivi || [];
+  const R0 = 21, L = 2 * Math.PI * R0;
+  box.innerHTML = `<div class="card-head"><h2>I tuoi obiettivi</h2></div>
+    <div>${list.map(g => { const i = goalInfo(g);
+      return `<div class="goalrow"><svg class="ring" viewBox="0 0 52 52" aria-hidden="true"><circle class="bg" cx="26" cy="26" r="${R0}"/><circle class="fg" cx="26" cy="26" r="${R0}" stroke-dasharray="${i.pct * L} ${L}" transform="rotate(-90 26 26)"/><text x="26" y="30" text-anchor="middle">${Math.round(i.pct * 100)}%</text></svg>
+        <div style="min-width:0"><div class="n">${esc(g.nome)}</div><div class="s">${eur.format(g.versato || 0)} di ${eur.format(g.importo)} · entro ${MONTHS[Number(g.scadenza.slice(5)) - 1]} ${g.scadenza.slice(0, 4)}</div>
+        <div class="s" style="font-weight:600;color:var(--${i.done ? "good" : i.late ? "bad" : i.onTrack ? "good" : "warn"})">${i.done ? "Obiettivo raggiunto!" : i.late ? `Scaduto: mancano ${eur.format(i.left)}` : `Metti da parte ${eur.format(Math.ceil(i.perMonth))} al mese · ${i.onTrack ? "sei in linea" : "sei un po' indietro"}`}</div></div>
+        <div style="display:flex;flex-direction:column;gap:4px"><button class="btn small" type="button" data-goal-add="${esc(g.id)}">+ Soldi</button><button class="icon-btn" type="button" data-goal-del="${esc(g.id)}" aria-label="Togli ${esc(g.nome)}" style="align-self:flex-end">${svg("trash")}</button></div></div>`; }).join("")}</div>
+    ${!list.length ? `<p class="note">Per esempio «Erasmus, 1.500 € entro febbraio»: ti dico quanto mettere da parte ogni mese e se sei in linea.</p>` : ""}
+    <div class="inline-form"><input id="gName" type="text" maxlength="40" placeholder="Per cosa risparmi" aria-label="Nome dell'obiettivo"><input id="gAmount" type="number" inputmode="numeric" min="1" step="10" placeholder="Quanto €" aria-label="Importo dell'obiettivo"><label class="full" style="flex-direction:row;align-items:center;gap:8px">Entro<input id="gDate" type="month" min="${ymOf(todayISO())}" value="${ymAdd(ymOf(todayISO()), 6)}" aria-label="Mese di scadenza"></label><button class="btn small primary full" id="gAdd" type="button">Aggiungi obiettivo</button></div>`;
+}
+$("goalsCard").addEventListener("click", e => {
+  const a = e.target.closest("[data-goal-add]"), d = e.target.closest("[data-goal-del]");
+  if (a){
+    const id = a.dataset.goalAdd, row = a.closest(".goalrow");
+    if (row.querySelector(".gin")) return;
+    const wrap = document.createElement("div"); wrap.className = "inline-form gin"; wrap.style.gridColumn = "1/-1";
+    wrap.innerHTML = `<input type="number" inputmode="decimal" min="0" step="1" placeholder="Quanto hai messo da parte €" aria-label="Importo messo da parte"><button class="btn small primary" type="button">Aggiungi</button>`;
+    row.appendChild(wrap); const inp = wrap.querySelector("input"); inp.focus();
+    wrap.querySelector("button").addEventListener("click", () => {
+      const v = Number(String(inp.value).replace(",", ".")); if (!(v > 0)){ toast("Scrivi un importo", "warn"); return; }
+      setProfile("obiettivi", (state.profile.obiettivi || []).map(g => g.id === id ? {...g, versato: Math.round(((g.versato || 0) + v) * 100) / 100, movimenti: [...(g.movimenti || []), {d: todayISO(), a: v}]} : g));
+      toast(`Aggiunti ${eur2.format(v)}`, "ok");
+    });
+    return;
+  }
+  if (d){ setProfile("obiettivi", (state.profile.obiettivi || []).filter(g => g.id !== d.dataset.goalDel)); return; }
+  if (e.target.closest("#gAdd")){
+    const nome = $("gName").value.trim(), importo = Math.round(Number($("gAmount").value)), scad = $("gDate").value;
+    if (!nome || !(importo > 0) || !/^\d{4}-\d{2}$/.test(scad)){ toast("Scrivi nome, importo e mese", "warn"); return; }
+    setProfile("obiettivi", [...(state.profile.obiettivi || []), { id: "g" + Date.now().toString(36), nome, importo, scadenza: scad, creato: todayISO(), versato: 0, movimenti: [] }]);
+    toast("Obiettivo aggiunto", "ok");
+  }
+});
+
+/* ---------- 6. Blocco con PIN e impronta ---------- */
+const LOCK_KEY = "contodicasa.lock";
+const lockCfg = () => { try { return JSON.parse(localStorage.getItem(LOCK_KEY) || "null"); } catch(e){ return null; } };
+const setLockCfg = v => { try { v ? localStorage.setItem(LOCK_KEY, JSON.stringify(v)) : localStorage.removeItem(LOCK_KEY); return true; } catch(e){ return false; } };
+async function sha(t){ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const unb64 = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
+async function bioAvailable(){ try { return !!(window.PublicKeyCredential && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()); } catch(e){ return false; } }
+async function renderLockCard(){
+  const cfg = lockCfg();
+  if ($("lockCard").contains(document.activeElement)) return;
+  $("lockToggle").checked = !!cfg;
+  $("lockSetup").hidden = true;
+  $("bioBtn").hidden = !cfg || !(await bioAvailable());
+  if (cfg) $("bioBtn").textContent = cfg.cred ? "Togli l'impronta" : "Usa anche l'impronta";
+}
+$("lockToggle").addEventListener("change", () => {
+  if ($("lockToggle").checked){ $("lockSetup").hidden = false; $("pin1").focus(); $("lockMsg").textContent = ""; }
+  else { setLockCfg(null); $("lockSetup").hidden = true; $("bioBtn").hidden = true; $("lockMsg").textContent = "Blocco tolto."; }
+});
+$("pinSave").addEventListener("click", async () => {
+  const a = $("pin1").value, b = $("pin2").value;
+  if (!/^\d{4,6}$/.test(a)){ $("lockMsg").textContent = "Il PIN deve avere da 4 a 6 cifre."; return; }
+  if (a !== b){ $("lockMsg").textContent = "I due PIN non coincidono."; return; }
+  const salt = b64(crypto.getRandomValues(new Uint8Array(16)));
+  if (!setLockCfg({ salt, hash: await sha(salt + a) })){ $("lockMsg").textContent = "Qui non posso salvare il PIN: usa l'app installata."; $("lockToggle").checked = false; return; }
+  $("pin1").value = $("pin2").value = ""; $("lockSetup").hidden = true;
+  $("lockMsg").textContent = "PIN salvato: lo chiedo a ogni apertura e dopo un minuto in background. Se lo dimentichi, cancella i dati del sito dal browser: le spese tornano accedendo con Google.";
+  renderLockCard();
+});
+$("bioBtn").addEventListener("click", async () => {
+  const cfg = lockCfg(); if (!cfg) return;
+  if (cfg.cred){ delete cfg.cred; setLockCfg(cfg); $("lockMsg").textContent = "Impronta tolta: resta il PIN."; renderLockCard(); return; }
+  try {
+    const cred = await navigator.credentials.create({ publicKey: {
+      challenge: crypto.getRandomValues(new Uint8Array(32)), rp: { name: "Conto di Casa" },
+      user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "conto-di-casa", displayName: "Conto di Casa" },
+      pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+      authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required", residentKey: "discouraged" }, timeout: 60000 } });
+    cfg.cred = b64(cred.rawId); setLockCfg(cfg);
+    $("lockMsg").textContent = "Impronta attivata.";
+  } catch(e){ $("lockMsg").textContent = "Impronta non disponibile qui: resta il PIN."; }
+  renderLockCard();
+});
+let pinBuf = "", locked = false, hiddenAt = 0;
+function showLock(){
+  const cfg = lockCfg(); if (!cfg || locked) return;
+  locked = true; pinBuf = "";
+  $("lockScreen").hidden = false; document.body.style.overflow = "hidden";
+  $("pinDots").innerHTML = "<i></i>".repeat(6); paintDots();
+  $("keypad").innerHTML = ["1","2","3","4","5","6","7","8","9","","0","⌫"].map(k => k ? `<button type="button" data-key="${k}" ${k === "⌫" ? 'class="ghost" aria-label="Cancella"' : ""}>${k}</button>` : "<span></span>").join("");
+  $("lockHint").textContent = "";
+  $("lockBio").hidden = !cfg.cred;
+  if (cfg.cred) setTimeout(unlockBio, 300);
+}
+function paintDots(){ [...$("pinDots").children].forEach((d, i) => d.classList.toggle("on", i < pinBuf.length)); }
+function unlock(){ locked = false; $("lockScreen").hidden = true; document.body.style.overflow = ""; }
+async function tryPin(){
+  const cfg = lockCfg(); if (!cfg) return unlock();
+  if (pinBuf.length < 4) return;
+  if (await sha(cfg.salt + pinBuf) === cfg.hash){ unlock(); return; }
+  if (pinBuf.length >= 6){ $("pinDots").classList.add("err"); setTimeout(() => $("pinDots").classList.remove("err"), 400); pinBuf = ""; paintDots(); $("lockHint").textContent = "PIN sbagliato, riprova."; }
+}
+$("keypad").addEventListener("click", e => {
+  const b = e.target.closest("[data-key]"); if (!b) return;
+  const k = b.dataset.key;
+  if (k === "⌫") pinBuf = pinBuf.slice(0, -1); else if (pinBuf.length < 6) pinBuf += k;
+  paintDots(); tryPin();
+});
+document.addEventListener("keydown", e => { if (!locked) return; if (/^\d$/.test(e.key) && pinBuf.length < 6){ pinBuf += e.key; paintDots(); tryPin(); } else if (e.key === "Backspace"){ pinBuf = pinBuf.slice(0, -1); paintDots(); } });
+async function unlockBio(){
+  const cfg = lockCfg(); if (!cfg || !cfg.cred) return;
+  try {
+    await navigator.credentials.get({ publicKey: { challenge: crypto.getRandomValues(new Uint8Array(32)), allowCredentials: [{ type: "public-key", id: unb64(cfg.cred) }], userVerification: "required", timeout: 60000 } });
+    unlock();
+  } catch(e){ $("lockHint").textContent = "Impronta non riconosciuta: usa il PIN."; }
+}
+$("lockBio").addEventListener("click", unlockBio);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") hiddenAt = Date.now(); else if (hiddenAt && Date.now() - hiddenAt > 60000) showLock(); });
+
+/* ---------- 7. Riepilogo del mese da condividere ---------- */
+let sumYm = null;
+function monthSummary(ym){
+  const m = monthAlloc(ym), prev = monthAlloc(ymAdd(ym, -1));
+  const tot = m._tot || 0, ptot = prev._tot || 0;
+  const cats = CATS.filter(c => m[c.id]).map(c => ({ c, v: m[c.id] })).sort((a,b) => b.v - a.v);
+  const C = compute();
+  const cmp = C.rows.filter(r => m[r.cat.id] && r.b.monthly);
+  const you = cmp.reduce((s, r) => s + m[r.cat.id], 0), zone = cmp.reduce((s, r) => s + r.b.monthly, 0);
+  return { ym, tot, ptot, cats, you, zone, moves: (state.profile.shared && state.profile.shared.on) ? balances() : [] };
+}
+function summaryText(S){
+  const name = ymLabel(S.ym).replace(/^\w/, x => x.toUpperCase());
+  const lines = [`Conto di Casa · ${name}`, `Totale: ${eur.format(S.tot)}${S.ptot ? ` (${S.tot >= S.ptot ? "+" : "−"}${Math.abs(Math.round((S.tot - S.ptot) / S.ptot * 100))}% sul mese prima)` : ""}`];
+  lines.push(S.cats.map(x => `${x.c.name} ${eur.format(x.v)}`).join(" · "));
+  if (S.zone) lines.push(`Rispetto alla media della zona: ${S.you <= S.zone ? "−" : "+"}${Math.abs(Math.round((S.you - S.zone) / S.zone * 100))}%`);
+  S.moves.forEach(mv => lines.push(`${mv.from === "Io" ? "Tu devi" : mv.from + " deve"} ${eur2.format(mv.amount)} a ${mv.to === "Io" ? "te" : mv.to}`));
+  return lines.join("\n");
+}
+function openSummary(){
+  const alloc = new Set();
+  items().forEach(e => allocations(e).forEach(([ym]) => { if (ym <= ymOf(todayISO())) alloc.add(ym); }));
+  const yms = [...alloc].sort().reverse().slice(0, 6);
+  if (!yms.length){ toast("Aggiungi qualche spesa per avere un riepilogo", "warn"); return; }
+  if (!sumYm || !yms.includes(sumYm)) sumYm = yms[0];
+  const S = monthSummary(sumYm);
+  const max = Math.max(...S.cats.map(x => x.v), 1);
+  openPanel("Riepilogo del mese", `
+    <div class="chips">${yms.map(y => `<button type="button" data-sum="${y}" aria-pressed="${y === sumYm}">${esc(ymLabel(y))}</button>`).join("")}</div>
+    <div class="sum-head"><b>${eur.format(S.tot)}</b>${S.ptot ? `<span class="small ${S.tot > S.ptot ? "up" : "down"}" style="font-weight:600">${S.tot >= S.ptot ? "+" : "−"}${Math.abs(Math.round((S.tot - S.ptot) / S.ptot * 100))}% sul mese prima</span>` : ""}</div>
+    <div class="dleg">${S.cats.map(x => `<div style="display:grid;grid-template-columns:110px 1fr 70px;gap:8px;align-items:center"><span>${esc(x.c.name)}</span><span class="t" style="height:8px;border-radius:4px;background:var(--paper);overflow:hidden"><i style="display:block;height:100%;width:${x.v / max * 100}%;background:${x.c.color};border-radius:4px"></i></span><span class="num" style="text-align:right">${eur.format(x.v)}</span></div>`).join("")}</div>
+    ${S.zone ? `<p class="small">Sulle voci confrontabili: ${eur.format(S.you)} contro ${eur.format(S.zone)} della media della zona.</p>` : ""}
+    ${S.moves.map(mv => `<p class="small"><b>${mv.from === "Io" ? "Tu devi" : esc(mv.from) + " deve"}</b> ${eur2.format(mv.amount)} a <b>${mv.to === "Io" ? "te" : esc(mv.to)}</b></p>`).join("")}
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary small" type="button" id="sumShare">Condividi</button><button class="btn small" type="button" id="sumCopy">Copia testo</button><button class="btn small" type="button" id="sumImg">Salva immagine</button></div>`);
+  $("panelBody").querySelectorAll("[data-sum]").forEach(b => b.addEventListener("click", () => { sumYm = b.dataset.sum; openSummary(); }));
+  $("sumCopy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(summaryText(S)); toast("Testo copiato", "ok"); } catch(e){ toast("Il browser non ha permesso la copia", "warn"); } });
+  $("sumShare").addEventListener("click", async () => {
+    const text = summaryText(S);
+    try {
+      const blob = await summaryImage(S), file = new File([blob], `conto-di-casa-${S.ym}.png`, {type:"image/png"});
+      if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Conto di Casa", text, files: [file] });
+      else if (navigator.share) await navigator.share({ title: "Conto di Casa", text });
+      else { await navigator.clipboard.writeText(text); toast("Qui non posso condividere: ho copiato il testo", "ok"); }
+    } catch(e){ if (e && e.name !== "AbortError") toast("Condivisione non riuscita: usa «Copia testo»", "warn"); }
+  });
+  $("sumImg").addEventListener("click", async () => {
+    const blob = await summaryImage(S), name = `conto-di-casa-${S.ym}.png`;
+    if (inClaude()){ try { const dl = await window.claude.use("downloads"); if (dl){ await dl.save({ filename: name, data: blob }); return; } } catch(e){} toast("Download annullato", "warn"); return; }
+    const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+  });
+}
+$("summaryBtn").addEventListener("click", openSummary);
+function summaryImage(S){
+  const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H;
+  const x = c.getContext("2d");
+  const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, "#1B2A6B"); g.addColorStop(1, "#0C1430");
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const font = (w, sz, fam) => `${w} ${sz}px ${fam || '"Bricolage Grotesque", "Segoe UI", sans-serif'}`;
+  x.fillStyle = "#F5B83D"; x.font = font(700, 38); x.fillText("Conto di Casa", 80, 120);
+  x.fillStyle = "#A9B4D6"; x.font = font(500, 34, '"IBM Plex Sans", sans-serif'); x.fillText(ymLabel(S.ym).replace(/^\w/, z => z.toUpperCase()), 80, 175);
+  x.fillStyle = "#FFFFFF"; x.font = font(700, 140); x.fillText(eur.format(S.tot), 80, 340);
+  if (S.ptot){ const d = (S.tot - S.ptot) / S.ptot; x.fillStyle = d > 0 ? "#FF8F85" : "#7FE0A8"; x.font = font(600, 36, '"IBM Plex Sans", sans-serif'); x.fillText(`${d >= 0 ? "+" : "−"}${Math.abs(Math.round(d * 100))}% sul mese prima`, 84, 400); }
+  const max = Math.max(...S.cats.map(z => z.v), 1);
+  const colors = {spesa:"#5ED39A",luce:"#F2CE5A",gas:"#FF9457",acqua:"#62B6F5",tari:"#CDB08E",carburante:"#C796F5",telefono:"#93B4E0",abbonamenti:"#FFA98A",trasporti:"#55D6CA",svago:"#FF8FC0",tasse:"#ABABFF",altro:"#AEB5C4"};
+  S.cats.slice(0, 8).forEach((z, i) => {
+    const y = 500 + i * 92;
+    x.fillStyle = "#EEF1FA"; x.font = font(500, 34, '"IBM Plex Sans", sans-serif'); x.fillText(z.c.name, 80, y);
+    x.textAlign = "right"; x.font = font(500, 34, '"IBM Plex Mono", monospace'); x.fillText(eur.format(z.v), W - 80, y); x.textAlign = "left";
+    x.fillStyle = "rgba(255,255,255,.1)"; x.beginPath(); x.roundRect(80, y + 18, W - 160, 16, 8); x.fill();
+    x.fillStyle = colors[z.c.id] || "#F5B83D"; x.beginPath(); x.roundRect(80, y + 18, Math.max(16, (W - 160) * z.v / max), 16, 8); x.fill();
+  });
+  if (S.zone){ x.fillStyle = "#A9B4D6"; x.font = font(500, 30, '"IBM Plex Sans", sans-serif'); x.fillText(`Media della zona sulle stesse voci: ${eur.format(S.zone)} · tu ${eur.format(S.you)}`, 80, H - 110); }
+  return new Promise(ok => c.toBlob(ok, "image/png"));
 }
 
 /* ---------- Tema chiaro / scuro ---------- */
@@ -2259,6 +2839,7 @@ document.addEventListener("touchend", e => { const now = Date.now(); if (now - l
 $("pRegion").innerHTML = REGIONS.map(r => `<option value="${r.id}">${esc(r.name)}</option>`).join("");
 $("fStore").innerHTML = `<option value="">Non specificato</option>` + CHAINS.map(c => c[0]).sort((a,b) => a.localeCompare(b, "it")).map(o => `<option>${esc(o)}</option>`).join("") + `<option>Mercato o negozio di quartiere</option><option>Altro negozio</option>`;
 state.examples = buildExamples();
+showLock();
 renderAll();
 route();
 loadFuelIndex();
