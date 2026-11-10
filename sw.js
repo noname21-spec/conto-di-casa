@@ -1,5 +1,5 @@
 // Conto di Casa — service worker: funziona offline, tiene freschi i prezzi e ricorda le scadenze.
-const CACHE = "contodicasa-v6";
+const CACHE = "contodicasa-v7";
 const CORE = [
   "./",
   "./index.html",
@@ -62,7 +62,7 @@ async function checkScadenze() {
   const lim = Date.now() + 3 * 864e5;
   for (const s of list) {
     if (sent.includes(s.key) || new Date(s.date + "T09:00").getTime() > lim) continue;
-    await self.registration.showNotification(`${s.title}: ${String(s.amount.toFixed(2)).replace(".", ",")} €`, {
+    await self.registration.showNotification(s.amount > 0 ? `${s.title}: ${String(s.amount.toFixed(2)).replace(".", ",")} €` : s.title, {
       body: `In scadenza il ${new Date(s.date + "T12:00").toLocaleDateString("it-IT", { day: "numeric", month: "long" })}`,
       icon: "icon-192.png", badge: "icon-192.png", tag: s.key
     });
