@@ -2262,7 +2262,7 @@ $("bankInput").addEventListener("change", async () => {
   if (!file) return;
   if (/\.xlsx?$/i.test(file.name)){ toast("Serve il file CSV: dall'home banking scegli «Esporta» in formato CSV", "warn", 6000); return; }
   let text = await file.text();
-  if (text.includes("�")){ try { text = new TextDecoder("windows-1252").decode(await file.arrayBuffer()); } catch(e){} }
+  if (text.includes("\uFFFD")){ try { text = new TextDecoder("windows-1252").decode(await file.arrayBuffer()); } catch(e){} }
   const rows = parseBankCsv(text);
   if (!rows || !rows.length){ toast("Non riconosco questo file: servono almeno colonne con data e importo", "bad", 6000); return; }
   const have = new Set(realItems().map(x => x.id)), del = new Set(state.deleted);
