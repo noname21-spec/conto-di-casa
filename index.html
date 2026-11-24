@@ -146,8 +146,8 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 
 /* Bottom bar */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding:10px 8px calc(22px + env(safe-area-inset-bottom))}
-nav.tabs .inner{max-width:720px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 76px 1fr 1fr;align-items:end}
-nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:var(--muted);font-size:11.5px;font-weight:500;padding:6px 2px;border-radius:12px}
+nav.tabs .inner{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);align-items:end}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:var(--muted);font-size:11px;font-weight:500;padding:6px 2px;border-radius:12px}
 nav.tabs a[aria-current="page"]{color:var(--accent-ink)}
 nav.tabs a[aria-current="page"] svg.i{stroke-width:2.3}
 .fab{justify-self:center;width:60px;height:60px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;cursor:pointer;margin-top:-26px;box-shadow:0 6px 20px rgba(245,184,61,.35)}
@@ -540,10 +540,10 @@ section.enter .ybars span{animation:barin .7s var(--ease) both;animation-delay:c
 
 /* ---- Barra sottile (variante C) ---- */
 nav.tabs{padding:6px 6px calc(14px + env(safe-area-inset-bottom))}
-nav.tabs .inner{grid-template-columns:repeat(5,1fr);align-items:center}
-nav.tabs a{gap:2px;padding:4px 2px;font-size:11px}
+nav.tabs .inner{grid-template-columns:repeat(6,1fr);align-items:center}
+nav.tabs a{gap:2px;padding:4px 2px;font-size:10.5px;letter-spacing:-.1px}
 nav.tabs a::before{display:none}
-nav.tabs a .pill{display:grid;place-items:center;width:52px;height:30px;border-radius:999px;transition:background .3s var(--ease),color .3s}
+nav.tabs a .pill{display:grid;place-items:center;width:46px;height:30px;border-radius:999px;transition:background .3s var(--ease),color .3s}
 nav.tabs a svg.i{width:21px;height:21px}
 nav.tabs a[aria-current="page"] .pill{background:var(--accent);color:var(--on-accent)}
 nav.tabs a[aria-current="page"] svg.i{transform:none;stroke-width:2.2}
@@ -633,6 +633,27 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
 
 [data-user-hidden="1"]{display:none !important}
 .subhide{display:none !important}
+/* Dispensa */
+.pan{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;padding:11px 0;border-top:1px solid var(--line);cursor:pointer}
+.pan:first-child{border-top:0}
+.pan .nm{font-weight:600;font-size:15px}
+.pan .nm .q{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-weight:500;margin-left:6px}
+.pan .d{font-size:12.5px;color:var(--muted);margin-top:2px}
+.pan .d b{color:var(--ink);font-weight:600}
+.pan .d b.warn{color:var(--warn)}
+.pan .d b.bad{color:var(--bad)}
+.pan .bar{grid-column:1/-1;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.pan .bar i{display:block;height:100%;border-radius:99px;background:var(--good);transition:width .6s var(--ease)}
+.pan .bar i.warn{background:var(--warn)}
+.pan .bar i.bad{background:var(--bad)}
+.pan-alert{border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}
+.pan-alert .pan{cursor:default}
+.dur{display:grid;grid-template-columns:1fr auto auto;gap:4px 12px;font-size:14px;align-items:baseline}
+.dur .h{font-size:12px;color:var(--muted)}
+.dur .v{font-family:var(--f-mono);text-align:right;font-size:13.5px}
+.dur .tag{font-size:10.5px}
+.add-pan{display:grid;grid-template-columns:1fr 64px auto;gap:8px}
+.add-pan input{min-width:0}
 /* pannello spesa: importo in alto, categorie compatte, salva sempre visibile */
 #sheet .catgrid{grid-template-columns:repeat(4,1fr);gap:6px}
 #sheet .catgrid button{padding:8px 2px;gap:4px;font-size:11.5px;border-radius:12px}
@@ -773,7 +794,6 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
       <div id="chains"></div>
       <button class="btn small more" type="button" id="chainMore" hidden>Mostra tutti i negozi</button>
     </div>
-    <div class="card" id="listaCard"></div>
     <div class="card" id="prodCard"></div>
     <div class="card">
       <div class="rank-head"><div class="medal" id="medal">–</div><div><h2>Dove costa meno vivere</h2><p class="note" id="rankSub"></p></div></div>
@@ -783,6 +803,19 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
     </div>
     <div class="card" id="fuelCard"></div>
     <div class="card" id="inflCard"></div>
+  </section>
+
+  <!-- LISTA E DISPENSA -->
+  <section id="view-lista" class="stack" data-section hidden>
+    <div class="card-head"><h2>Lista e dispensa</h2></div>
+    <div class="seg subtabs" id="listaTabs" role="tablist" aria-label="Lista o dispensa"><button type="button" role="tab" data-lt="lista" aria-pressed="true">Da comprare</button><button type="button" role="tab" data-lt="dispensa" aria-pressed="false">In dispensa</button></div>
+    <div class="card pan-alert" id="panAlert" hidden></div>
+    <div class="card" id="listaCard"></div>
+    <div class="card" id="panAdd"></div>
+    <div class="card" id="panList"></div>
+    <div class="card" id="panNext" hidden></div>
+    <div class="card" id="panDur"></div>
+    <div class="card" id="panSet"></div>
   </section>
 
   <!-- RISPARMIA -->
@@ -904,6 +937,7 @@ html[data-mode="black"] .hero:not(.good):not(.warn):not(.bad){background:linear-
   <div class="inner">
     <a href="#panoramica" data-view="panoramica"><span class="pill"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></span>Home</a>
     <a href="#spese" data-view="spese"><span class="pill"><svg class="i" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6M9 16h3"/></svg></span>Spese</a>
+    <a href="#lista" data-view="lista"><span class="pill"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8.5 10l1.5 1.5L13 8.5M8.5 16l1.5 1.5L13 14.5M15 10.5h1.5M15 16.5h1.5"/></svg></span>Lista</a>
     <a href="#confronta" data-view="confronta"><span class="pill"><svg class="i" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg></span>Confronta</a>
     <a href="#risparmia" data-view="risparmia"><span class="pill"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9.5a3 3 0 0 0-3-1.5c-1.7 0-3 .9-3 2s1.3 1.7 3 2 3 .9 3 2-1.3 2-3 2a3 3 0 0 1-3-1.5M12 6.5v1.5M12 16v1.5"/></svg></span>Risparmia</a>
     <a href="#casa" data-view="casa"><span class="pill"><svg class="i" viewBox="0 0 24 24"><path d="M4 21V10l8-6 8 6v11z"/><circle cx="12" cy="14" r="2.6"/><path d="M12 9.6v1.8M12 16.6v1.8M7.6 14h1.8M14.6 14h1.8"/></svg></span>Casa</a>
@@ -1107,7 +1141,7 @@ const $ = id => document.getElementById(id);
 const people = n => n >= 5 ? "5 o più persone" : n === 1 ? "1 persona" : n + " persone";
 
 /* ---------- Stato ---------- */
-const DEFAULT_PROFILE = { onboarded:false, home:{order:[], hidden:[]}, lista:[], region:"emilia-romagna", provincia:"BO", comune:"", size:2, gas:"risc", fuel:"benzina", liters:40, examplesOff:false, theme:"dark", soglie:{}, ricorrenti:[], shared:{on:false, people:["Io"]}, saldi:[], obiettivo:500, notify:false, updatedAt:0, regole:{}, obiettivi:[], offerte:{luce:[], gas:[]}, garanzie:[], scadenze:[], progetti:[], sfide:[], badge:[], darkKind:"dark", glass:null };
+const DEFAULT_PROFILE = { onboarded:false, home:{order:[], hidden:[]}, lista:[], dispensa:[], consumi:[], dispAuto:true, dispDaLista:true, region:"emilia-romagna", provincia:"BO", comune:"", size:2, gas:"risc", fuel:"benzina", liters:40, examplesOff:false, theme:"dark", soglie:{}, ricorrenti:[], shared:{on:false, people:["Io"]}, saldi:[], obiettivo:500, notify:false, updatedAt:0, regole:{}, obiettivi:[], offerte:{luce:[], gas:[]}, garanzie:[], scadenze:[], progetti:[], sfide:[], badge:[], darkKind:"dark", glass:null };
 const state = { profile:{...DEFAULT_PROFILE}, months:{}, examples:[], storeMode:"memory", deleted:[], prezzi:[] };
 
 function buildExamples(){
@@ -1397,9 +1431,10 @@ let filterCat = "", chainType = "", rankAll = false, sheetCat = "spesa";
 
 // Si disegna solo la sezione aperta: le altre si aggiornano quando le apri.
 const SECTION_RENDER = {
-  panoramica: C => { renderHome(C); renderSaldo(); renderForecast(); renderDue(); renderDonut(C); renderMonthDots(); applyHomeLayout(); },
+  panoramica: C => { panAutoList(); renderHome(C); renderSaldo(); renderForecast(); renderDue(); renderDonut(C); renderMonthDots(); applyHomeLayout(); },
   spese: C => { renderList(); renderYear(); renderShared(); renderRecurring(); renderDeadlines(); renderProjects(); renderWarranties(); render730(); },
-  confronta: C => { renderCompare(C); renderFuel(C); renderLista(); renderInflation(); renderProducts(); },
+  lista: C => { renderListaView(); },
+  confronta: C => { renderCompare(C); renderFuel(C); renderInflation(); renderProducts(); },
   risparmia: C => { renderSave(C); renderGoals(); renderChallenges(); renderPiggy(C); renderOffers(C); },
   casa: C => { renderProfile(); renderHomeEditor(); renderSync(); renderLockCard(); renderFoldSums(); },
 };
@@ -1627,7 +1662,7 @@ function renderProfile(){
 }
 
 /* ---------- Navigazione ---------- */
-const VIEWS = ["panoramica","spese","confronta","risparmia","casa"];
+const VIEWS = ["panoramica","spese","lista","confronta","risparmia","casa"];
 function route(){
   let h = location.hash.replace("#","");
   if (h === "aggiungi"){ openSheet(); h = "panoramica"; }
@@ -1808,12 +1843,14 @@ $("addForm").addEventListener("submit", async e => {
   (state.months[ym] ||= []).push(item);
   const wasEdit = !!editing; editing = null;
   if (lastItems.length && c.id === "spesa") savePrices(lastItems, item.store || "Negozio non indicato", date);
+  const fromReceipt = c.id === "spesa" && !wasEdit ? lastItems.filter(x => x && x.name).map(x => ({ name: x.name, date })) : [];
   lastItems = [];
   $("fAmount").value = ""; $("fQty").value = ""; $("fNote").value = "";
   renderAll();
   closeSheet();
   const alert = item.in ? null : sogliaAlert(c.id, ym);
   if (alert) toast(alert.text, alert.level, 5200);
+  else if (fromReceipt.length) toast(`Salvata. Metto in dispensa i ${fromReceipt.length} prodotti dello scontrino?`, "ok", 9000, { label: "Sì", fn: () => { fromReceipt.forEach(x => panAdd(cleanProd(x.name), 1, x.date, true)); persistProfile(); renderAll(); toast(`${fromReceipt.length} prodotti in dispensa`, "ok"); } });
   else toast(`${wasEdit ? "Modificata" : "Salvata"}: ${c.name}, ${eur2.format(item.amount)}`, "ok");
   if (oldYm && oldYm !== ym) await persistMonth(oldYm);
   await persistMonth(ym);
@@ -2096,6 +2133,7 @@ function renderDue(){
   box.hidden = false;
   box.innerHTML = `<div class="card-head"><h2>In arrivo</h2><span class="small muted">prossimi giorni</span></div><div class="due">${list.slice(0, 5).map(x => {
     const c = CAT[x.cat] || CAT.altro, dd = daysTo(x.date);
+    if (x.pantry) return `<div class="due-row">${icoBox(CAT.spesa)}<div><b>${esc(x.name)}</b><div class="d">in dispensa${x.listed ? ", già in lista" : ""}</div></div><span class="when ${dd <= 0 ? "today" : ""}">${dd < 0 ? "forse finito" : dd === 0 ? "finisce oggi" : dd === 1 ? "finisce domani" : "finisce tra " + dd + " giorni"}</span></div>`;
     return `<div class="due-row">${x.warranty ? `<span class="ico" style="background:var(--accent-soft);color:var(--accent-ink)">${svg("shield")}</span>` : icoBox(c)}<div><b>${esc(x.title)}</b><div class="d">${x.amount ? eur2.format(x.amount) : x.warranty ? "scade la garanzia" : "importo da segnare"}</div></div><span class="when ${dd <= 0 ? "today" : ""}">${dd < 0 ? "scaduta" : dd === 0 ? "oggi" : dd === 1 ? "domani" : "tra " + dd + " giorni"}</span></div>`;
   }).join("")}</div>`;
   writeDueCache();
@@ -2104,7 +2142,7 @@ async function writeDueCache(){
   try {
     if (!("caches" in window)) return;
     const c = await caches.open("contodicasa-state");
-    const list = upcomingAll(5).map(x => ({ key: x.key, date: x.date, title: x.title, amount: x.amount || 0 }));
+    const list = upcomingAll(5).map(x => ({ key: x.key, date: x.date, title: x.title, amount: x.amount || 0, body: x.pantry ? `Probabilmente finisce il ${new Date(x.date + "T12:00").toLocaleDateString("it-IT", {day:"numeric", month:"long"})}: mettilo in lista` : "" }));
     await c.put("./__scadenze.json", new Response(JSON.stringify({ notify: !!state.profile.notify, list }), {headers:{"Content-Type":"application/json"}}));
   } catch(e){}
 }
@@ -2117,7 +2155,7 @@ async function notifyDue(){
   const reg = navigator.serviceWorker ? await navigator.serviceWorker.getRegistration().catch(() => null) : null;
   list.forEach(x => {
     const title = x.amount ? `${x.title}: ${eur2.format(x.amount)}` : x.title;
-    const body = `${x.warranty ? "Scade" : "In scadenza"} il ${new Date(x.date + "T12:00").toLocaleDateString("it-IT", {day:"numeric", month:"long"})}`;
+    const body = x.pantry ? `Probabilmente finisce il ${new Date(x.date + "T12:00").toLocaleDateString("it-IT", {day:"numeric", month:"long"})}: mettilo in lista` : `${x.warranty ? "Scade" : "In scadenza"} il ${new Date(x.date + "T12:00").toLocaleDateString("it-IT", {day:"numeric", month:"long"})}`;
     try { reg ? reg.showNotification(title, {body, icon:"icon-192.png", badge:"icon-192.png", tag: x.key}) : new Notification(title, {body, icon:"icon-192.png"}); } catch(e){}
     sent.push(x.key);
   });
@@ -3178,6 +3216,7 @@ function upcomingAll(days = 7){
   (state.profile.ricorrenti || []).filter(r => !r.in).forEach(r => { const d = nextDue(r); if (d && d <= limISO) out.push({ key: r.id + "@" + d, date: d, title: r.note || CAT[r.cat]?.name, amount: r.amount, cat: r.cat }); });
   (state.profile.scadenze || []).forEach(x => { if (x.data <= limISO) out.push({ key: x.id + "@" + x.data, date: x.data, title: x.nome, amount: x.importo || null, cat: x.cat }); });
   const wl = new Date(); wl.setDate(wl.getDate() + Math.max(days, 30)); const wlISO = wl.toISOString().slice(0, 10);
+  panUpcoming(days).forEach(x => out.push(x));
   (state.profile.garanzie || []).forEach(w => { if (w.scadenza >= todayISO() && w.scadenza <= wlISO) out.push({ key: w.id + "@" + w.scadenza, date: w.scadenza, title: "Garanzia: " + w.nome, amount: null, cat: "altro", warranty: true }); });
   return out.sort((a,b) => a.date.localeCompare(b.date));
 }
@@ -3365,7 +3404,7 @@ function renderLista(){
   const stores = {}; info.forEach(x => { if (x.bp) stores[x.bp.best.store] = (stores[x.bp.best.store] || 0) + 1; });
   const top = Object.entries(stores).sort((a,b) => b[1] - a[1])[0];
   box.innerHTML = `<div class="card-head"><h2>Lista della spesa</h2>${list.some(x => x.ok) ? `<button class="linkish" type="button" id="lsClear">Togli i presi</button>` : ""}</div>
-    ${list.length ? `<div>${info.map(({it, bp}) => `<div class="lst ${it.ok ? "done" : ""}"><input type="checkbox" ${it.ok ? "checked" : ""} data-ls-ok="${esc(it.id)}" aria-label="Preso: ${esc(it.t)}"><span class="t">${esc(it.t)}</span><span class="p">${bp ? `${eur2.format(bp.best.price)}<small>${esc(bp.best.store)}${bp.n > 1 && bp.worst.price > bp.best.price ? `, −${eur2.format(bp.worst.price - bp.best.price)}` : ""}</small>` : ""}</span></div>`).join("")}</div>` : `<p class="note">Scrivi cosa ti serve: se l'hai già comprato con uno scontrino fotografato, ti dico dove l'hai pagato meno.</p>`}
+    ${list.length ? `<div>${info.map(({it, bp}) => `<div class="lst ${it.ok ? "done" : ""}"><input type="checkbox" ${it.ok ? "checked" : ""} data-ls-ok="${esc(it.id)}" aria-label="Preso: ${esc(it.t)}"><span class="t">${esc(it.t)}${it.auto ? ' <span class="tag">sta finendo</span>' : ""}</span><span class="p">${bp ? `${eur2.format(bp.best.price)}<small>${esc(bp.best.store)}${bp.n > 1 && bp.worst.price > bp.best.price ? `, −${eur2.format(bp.worst.price - bp.best.price)}` : ""}</small>` : ""}</span></div>`).join("")}</div>` : `<p class="note">Scrivi cosa ti serve: se l'hai già comprato con uno scontrino fotografato, ti dico dove l'hai pagato meno.</p>`}
     ${top && top[1] > 1 ? `<p class="small" style="font-weight:600">Conviene ${esc(top[0])}: ha il prezzo più basso per ${top[1]} prodotti della lista.</p>` : ""}
     <div style="display:flex;gap:8px"><input id="lsNew" type="text" maxlength="40" placeholder="Aggiungi, per esempio latte" aria-label="Aggiungi alla lista"><button class="btn small primary" type="button" id="lsAdd">Aggiungi</button></div>`;
   if (keep) $("lsNew").focus();
@@ -3373,14 +3412,238 @@ function renderLista(){
 function addToList(){
   const t = $("lsNew").value.trim(); if (!t) return;
   setProfile("lista", [...(state.profile.lista || []), { id: "l" + Date.now().toString(36), t, ok: false }]);
-  dirty.add("confronta"); renderView("confronta"); setTimeout(() => $("lsNew") && $("lsNew").focus(), 0);
+  setTimeout(() => $("lsNew") && $("lsNew").focus(), 0);
 }
 $("listaCard").addEventListener("click", e => {
   if (e.target.closest("#lsAdd")) addToList();
   if (e.target.closest("#lsClear")) setProfile("lista", (state.profile.lista || []).filter(x => !x.ok));
 });
-$("listaCard").addEventListener("change", e => { const c = e.target.closest("[data-ls-ok]"); if (c) setProfile("lista", (state.profile.lista || []).map(x => x.id === c.dataset.lsOk ? {...x, ok: c.checked} : x)); });
+$("listaCard").addEventListener("change", e => {
+  const c = e.target.closest("[data-ls-ok]"); if (!c) return;
+  const p = state.profile, it = (p.lista || []).find(x => x.id === c.dataset.lsOk); if (!it) return;
+  let dsp = it.dsp;
+  if (c.checked && p.dispDaLista !== false && !dsp){ dsp = panAdd(it.t, 1, todayISO(), true); toast(`${it.t}: in dispensa da oggi`, "ok"); }
+  if (!c.checked && dsp){ p.dispensa = (p.dispensa || []).filter(x => x.id !== dsp); dsp = undefined; }
+  setProfile("lista", (p.lista || []).map(x => x.id === it.id ? {...x, ok: c.checked, dsp} : x));
+});
 $("listaCard").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "lsNew"){ e.preventDefault(); addToList(); } });
+
+
+/* ---------- Dispensa: cosa c'è in casa, quanto dura, quando ricomprarlo ---------- */
+// Durate iniziali indicative (giorni per confezione, casa di 2 persone): servono finché l'app non ha imparato le tue.
+const PAN_BASE = [
+  [/latte/,4],[/pane|panin|focacc|piadin/,2],[/uova/,10],[/yogurt/,5],[/burro/,20],[/mozzarell|stracchin|ricott/,3],[/formagg|parmigian|grana|pecorin/,14],
+  [/prosciut|salam|mortadell|affettat|speck|bresaol/,4],[/pasta|spaghett|penne|fusill|rigaton/,10],[/riso/,20],[/farina/,30],[/zucchero/,45],[/\bsale\b/,120],
+  [/olio/,30],[/aceto/,90],[/caff/,14],[/\bte\b|tisan|camomill/,30],[/biscott|fette biscott|cracker|grissin/,7],[/cereal|muesli/,10],[/marmellat|confettur|nutell/,20],
+  [/passata|pelati|polpa|sugo/,7],[/tonno/,7],[/acqua/,4],[/birra/,7],[/vino/,7],[/succo/,4],[/banan/,5],[/mele|pere|aranc|frutta|mandarin|clementin/,6],
+  [/insalat|verdur|zucchin|pomodor|carot/,4],[/patat/,10],[/cipoll|aglio/,14],[/pollo|carne|manzo|maiale|macinat|salsicc|hamburger/,3],[/pesce|salmon|merluzz/,2],
+  [/surgelat|piselli|bastoncin/,10],[/detersivo piatti|piatti|pastiglie lavastov|lavastoviglie/,30],[/detersivo|lavatrice/,40],[/ammorbident/,40],
+  [/carta igienic/,12],[/scottex|carta cucin|rotolon/,14],[/shampoo|balsam/,45],[/bagnoschium|doccia/,40],[/dentifric/,30],[/sapone/,30],
+  [/sacchett|spazzatur|sacchi/,30],[/croccantin|crocchett|cibo gatt|cibo can|scatolett/,20],[/lettier/,14],[/assorbent/,30],[/pannolin/,7],
+];
+const cleanProd = n => String(n || "").replace(/\s+/g, " ").replace(/\b\d+([.,]\d+)?\s?(g|gr|kg|ml|cl|l|lt|pz|x)\b/gi, "").trim().toLowerCase().replace(/^./, c => c.toUpperCase()).slice(0, 40);
+const deAcc = n => String(n || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const panKey = n => { const t = deAcc(n); return prodKey(t) || t.toUpperCase().trim(); };
+const addDaysISO = (iso, n) => { const d = new Date(iso + "T12:00"); d.setDate(d.getDate() + Math.round(n)); return d.toISOString().slice(0, 10); };
+const daysBetween = (a, b) => Math.round((new Date(b + "T12:00") - new Date(a + "T12:00")) / 864e5);
+const median = arr => { const a = arr.slice().sort((x, y) => x - y); if (!a.length) return null; const m = a.length >> 1; return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; };
+const consumi = () => state.profile.consumi || [];
+// Quanto dura una confezione: prima i tuoi dati, poi la stima iniziale.
+function panDuration(name){
+  const k = panKey(name);
+  const mine = consumi().filter(x => x.key === k).slice(-6).map(x => x.days);
+  if (mine.length) return { days: Math.max(1, Math.round(median(mine))), src: "tue", n: mine.length };
+  const low = deAcc(name).toLowerCase();
+  const hit = PAN_BASE.find(([re]) => re.test(low));
+  if (!hit) return null;
+  const f = Math.min(1.6, Math.max(0.5, 2 / Math.max(1, sizeOf(state.profile))));
+  return { days: Math.max(1, Math.round(hit[1] * f)), src: "stima", n: 0 };
+}
+// Ogni quanto lo compri: distanza tra gli acquisti registrati.
+function panInterval(k){
+  const dates = [...new Set([...consumi().filter(x => x.key === k).map(x => x.bought), ...(state.profile.dispensa || []).filter(x => x.key === k).map(x => x.bought)].filter(Boolean))].sort();
+  if (dates.length < 2) return null;
+  const gaps = dates.slice(1).map((d, i) => daysBetween(dates[i], d)).filter(g => g > 0);
+  return gaps.length ? Math.round(median(gaps.slice(-6))) : null;
+}
+function panLastEnd(k, after){ return consumi().filter(x => x.key === k && x.end >= after).reduce((m, x) => x.end > m ? x.end : m, ""); }
+// Stato di una confezione in dispensa: da quando la stai usando e quando dovrebbe finire.
+function panInfo(e){
+  const dur = panDuration(e.name);
+  const start = (() => { const le = panLastEnd(e.key, e.bought); return le && le > e.bought ? le : e.bought; })();
+  if (!dur) return { dur: null, start, end: null, left: null, frac: null };
+  const end = addDaysISO(start, dur.days * Math.max(1, e.qty || 1));
+  const used = Math.max(0, daysBetween(start, todayISO()));
+  return { dur, start, end, left: daysTo(end), frac: Math.min(1, used / dur.days) };
+}
+const panLead = d => d && d.days >= 30 ? 4 : d && d.days >= 10 ? 3 : 1;
+function panAdd(name, qty, bought, silent){
+  const n = String(name || "").trim(); if (!n) return null;
+  const id = "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  state.profile.dispensa = [...(state.profile.dispensa || []), { id, name: n.slice(0, 40), key: panKey(n), bought: bought || todayISO(), qty: Math.max(1, Math.round(qty) || 1) }];
+  if (!silent){ persistProfile(); renderAll(); }
+  return id;
+}
+// Segna finita una confezione: è così che l'app impara quanto durano le cose.
+function panFinish(id, endISO){
+  const p = state.profile, e = (p.dispensa || []).find(x => x.id === id); if (!e) return;
+  const end = endISO || todayISO();
+  const le = panLastEnd(e.key, e.bought);
+  const start = le && le > e.bought && le <= end ? le : e.bought;
+  const days = Math.max(1, daysBetween(start, end));
+  p.consumi = [...consumi(), { key: e.key, name: e.name, bought: e.bought, start, end, days }].slice(-600);
+  if ((e.qty || 1) > 1) p.dispensa = p.dispensa.map(x => x.id === id ? {...x, qty: x.qty - 1, listed: false} : x);
+  else p.dispensa = p.dispensa.filter(x => x.id !== id);
+  persistProfile(); renderAll();
+  const inList = (p.lista || []).some(x => !x.ok && panKey(x.t) === e.key);
+  const still = (p.dispensa || []).some(x => x.key === e.key);
+  toast(`${e.name}: finito dopo ${days} ${days === 1 ? "giorno" : "giorni"}`, "ok", 6500, !inList && !still ? { label: "Metti in lista", fn: () => listAdd(e.name) } : null);
+}
+function listAdd(t, auto){
+  const p = state.profile;
+  if ((p.lista || []).some(x => !x.ok && panKey(x.t) === panKey(t))) return false;
+  p.lista = [...(p.lista || []), { id: "l" + Date.now().toString(36) + Math.random().toString(36).slice(2, 4), t, ok: false, auto: !!auto }];
+  persistProfile(); renderAll();
+  if (!auto) toast(`${t}: in lista`, "ok");
+  return true;
+}
+// Cosa sta per finire (per la Home, le notifiche e la lista automatica).
+function panSoon(){
+  return (state.profile.dispensa || []).map(e => ({ e, i: panInfo(e) })).filter(x => x.i.end && x.i.left <= panLead(x.i.dur)).sort((a, b) => a.i.left - b.i.left);
+}
+function panUpcoming(days){
+  return panSoon().filter(x => x.i.left <= days).map(({e, i}) => ({ key: "pan-" + e.id + "@" + i.end, date: i.end < todayISO() ? todayISO() : i.end, title: `${e.name}: sta per finire`, name: e.name, amount: null, cat: "spesa", pantry: true, listed: (state.profile.lista || []).some(x => !x.ok && panKey(x.t) === e.key) }));
+}
+// Se è attivo, mette da solo in lista ciò che sta per finire (una volta per confezione).
+function panAutoList(){
+  const p = state.profile; if (p.dispAuto === false) return;
+  let changed = false;
+  panSoon().forEach(({e}) => {
+    if (e.listed) return;
+    p.dispensa = p.dispensa.map(x => x.id === e.id ? {...x, listed: true} : x);
+    if (!(p.lista || []).some(x => !x.ok && panKey(x.t) === e.key)){ p.lista = [...(p.lista || []), { id: "l" + Date.now().toString(36) + Math.random().toString(36).slice(2, 4), t: e.name, ok: false, auto: true }]; }
+    changed = true;
+  });
+  if (changed) persistProfile();
+}
+
+let listaTab = "lista";
+function setListaTab(k){
+  listaTab = k;
+  [...$("listaTabs").children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lt === k)));
+  $("listaCard").classList.toggle("subhide", k !== "lista");
+  ["panAdd","panList","panNext","panDur","panSet"].forEach(id => $(id).classList.toggle("subhide", k !== "dispensa"));
+}
+$("listaTabs").addEventListener("click", e => { const b = e.target.closest("[data-lt]"); if (!b) return; setListaTab(b.dataset.lt); enterSection($("view-lista")); });
+
+function relDays(iso){ const d = -daysTo(iso); return d <= 0 ? "oggi" : d === 1 ? "ieri" : `${d} giorni fa`; }
+function whenEnds(i){
+  if (!i.end) return `<b>durata da imparare</b>`;
+  const l = i.left, cls = l <= 0 ? "bad" : l <= panLead(i.dur) ? "warn" : "";
+  const txt = l < 0 ? "dovrebbe essere finito" : l === 0 ? "finisce oggi" : l === 1 ? "finisce domani" : `finisce tra ~${l} giorni`;
+  return `<b class="${cls}">${txt}</b>`;
+}
+function renderListaView(){
+  panAutoList();
+  const p = state.profile, disp = (p.dispensa || []).map(e => ({ e, i: panInfo(e) }));
+  const toBuy = (p.lista || []).filter(x => !x.ok).length;
+  $("listaTabs").children[0].textContent = toBuy ? `Da comprare (${toBuy})` : "Da comprare";
+  $("listaTabs").children[1].textContent = disp.length ? `In dispensa (${disp.length})` : "In dispensa";
+  renderLista();
+
+  // Avviso: cosa sta per finire
+  const soon = panSoon();
+  $("panAlert").hidden = !soon.length;
+  if (soon.length){
+    $("panAlert").innerHTML = `<div class="card-head"><h2>Sta per finire</h2><span class="small muted">${soon.length} ${soon.length === 1 ? "prodotto" : "prodotti"}</span></div>
+      <div>${soon.map(({e, i}) => { const inL = (p.lista || []).some(x => !x.ok && panKey(x.t) === e.key);
+        return `<div class="pan"><div><div class="nm">${esc(e.name)}</div><div class="d">${whenEnds(i)}${i.dur && i.dur.src === "stima" ? " · stima" : ""}</div></div>${inL ? `<span class="tag">in lista</span>` : `<button class="btn small" type="button" data-pan-list="${esc(e.id)}">Metti in lista</button>`}</div>`; }).join("")}</div>`;
+  }
+
+  // Aggiungi alla dispensa
+  if (!$("panAdd").dataset.ready){
+    $("panAdd").dataset.ready = "1";
+    $("panAdd").innerHTML = `<div><h2>Aggiungi alla dispensa</h2><p class="note">Quello che spunti nella lista arriva qui da solo, con la data di oggi.</p></div>
+      <div class="add-pan"><input id="panName" type="text" maxlength="40" placeholder="Prodotto, per esempio caffè" aria-label="Prodotto"><input id="panQty" type="number" inputmode="numeric" min="1" max="99" value="1" aria-label="Quante confezioni"><button class="btn small primary" type="button" id="panGo">Aggiungi</button></div>
+      <label>Comprato il<input id="panDate" type="date"></label>`;
+  }
+  if (!$("panDate").value) $("panDate").value = todayISO();
+  const pd = panDuration($("panName").value || "");
+  $("panAdd").querySelector(".note").textContent = $("panName").value.trim() && pd ? `Di solito dura ${pd.days} ${pd.days === 1 ? "giorno" : "giorni"} a confezione${pd.src === "stima" ? " (stima iniziale)" : ""}.` : "Quello che spunti nella lista arriva qui da solo, con la data di oggi.";
+
+  // Elenco dispensa
+  const ord = disp.slice().sort((a, b) => (a.i.left ?? 999) - (b.i.left ?? 999));
+  $("panList").innerHTML = `<div class="card-head"><h2>In dispensa</h2>${ord.length ? `<span class="small muted">tocca per modificare</span>` : ""}</div>
+    ${ord.length ? `<div>${ord.map(({e, i}) => { const cls = i.left != null && i.left <= 0 ? "bad" : i.left != null && i.left <= panLead(i.dur) ? "warn" : "";
+      return `<div class="pan" data-pan="${esc(e.id)}" role="button" tabindex="0" aria-label="Modifica ${esc(e.name)}"><div><div class="nm">${esc(e.name)}${(e.qty || 1) > 1 ? `<span class="q">×${e.qty}</span>` : ""}</div><div class="d">comprato ${relDays(e.bought)} · ${whenEnds(i)}</div></div>
+        <button class="btn small" type="button" data-pan-end="${esc(e.id)}">Finito</button>${i.frac != null ? `<div class="bar"><i class="${cls}" style="width:${Math.round(i.frac * 100)}%"></i></div>` : ""}</div>`; }).join("")}</div>`
+    : `<div class="empty-state">${svg("spesa")}<p>La dispensa è vuota. Aggiungi quello che hai in casa: quando un prodotto finisce tocca «Finito», e l'app impara quanto ti dura e quando ricomprarlo.</p></div>`}`;
+
+  // Probabili prossimi acquisti: finiti di recente, che di solito ricompri
+  const openKeys = new Set(disp.map(x => x.e.key)), listKeys = new Set((p.lista || []).filter(x => !x.ok).map(x => panKey(x.t)));
+  const byKey = {}; consumi().forEach(x => { if (!byKey[x.key] || byKey[x.key].end < x.end) byKey[x.key] = x; });
+  const next = Object.values(byKey).filter(x => !openKeys.has(x.key) && consumi().filter(y => y.key === x.key).length >= 2 && daysTo(x.end) >= -45).map(x => {
+    const iv = panInterval(x.key); const last = x.bought; const due = iv ? addDaysISO(last, iv) : x.end;
+    return { x, due, iv, listed: listKeys.has(x.key) };
+  }).sort((a, b) => a.due.localeCompare(b.due)).slice(0, 6);
+  $("panNext").hidden = !next.length;
+  if (next.length) $("panNext").innerHTML = `<div><h2>Probabili prossimi acquisti</h2><p class="note">Li hai finiti e di solito li ricompri.</p></div>
+    <div>${next.map(n => `<div class="pan" style="cursor:default"><div><div class="nm">${esc(n.x.name)}</div><div class="d">${n.iv ? `lo compri ogni ~${n.iv} giorni · ` : ""}<b>${daysTo(n.due) <= 0 ? "da ricomprare" : "verso il " + new Date(n.due + "T12:00").toLocaleDateString("it-IT", {day:"numeric", month:"short"})}</b></div></div>${n.listed ? `<span class="tag">in lista</span>` : `<button class="btn small" type="button" data-next-list="${esc(n.x.name)}">Metti in lista</button>`}</div>`).join("")}</div>`;
+
+  // Quanto durano
+  const keys = [...new Set([...consumi().map(x => x.key), ...disp.map(x => x.e.key)])];
+  const rows = keys.map(k => { const ref = consumi().filter(x => x.key === k).at(-1) || disp.find(x => x.e.key === k).e; const d = panDuration(ref.name); return d ? { name: ref.name, d, iv: panInterval(k) } : null; }).filter(Boolean)
+    .sort((a, b) => (b.d.src === "tue") - (a.d.src === "tue") || b.d.n - a.d.n || a.name.localeCompare(b.name)).slice(0, 15);
+  $("panDur").innerHTML = `<div><h2>Quanto ti durano</h2><p class="note">Impara da ogni prodotto che segni come finito. Finché non ci sono dati tuoi uso una stima per una casa come la tua.</p></div>
+    ${rows.length ? `<div class="dur"><span class="h">Prodotto</span><span class="h">dura</span><span class="h">lo compri</span>${rows.map(r => `<span>${esc(r.name)} ${r.d.src === "stima" ? '<span class="tag">stima</span>' : ""}</span><span class="v">${r.d.days} g</span><span class="v">${r.iv ? "ogni " + r.iv + " g" : "—"}</span>`).join("")}</div>` : ""}`;
+
+  // Impostazioni
+  $("panSet").innerHTML = `<div><h2>Automatismi</h2></div>
+    <label class="switch">Metti in lista da solo ciò che sta per finire<input type="checkbox" id="dispAuto" ${p.dispAuto !== false ? "checked" : ""}></label>
+    <label class="switch">Quando spunti un prodotto nella lista, mettilo in dispensa<input type="checkbox" id="dispDaLista" ${p.dispDaLista !== false ? "checked" : ""}></label>
+    <p class="note">Gli avvisi arrivano anche nella Home, in «In arrivo», e come notifica se le hai attivate in Casa.</p>`;
+  setListaTab(listaTab);
+}
+$("view-lista").addEventListener("click", e => {
+  const end = e.target.closest("[data-pan-end]"); if (end){ e.stopPropagation(); panFinish(end.dataset.panEnd); return; }
+  const pl = e.target.closest("[data-pan-list]"); if (pl){ const it = (state.profile.dispensa || []).find(x => x.id === pl.dataset.panList); if (it){ state.profile.dispensa = state.profile.dispensa.map(x => x.id === it.id ? {...x, listed: true} : x); listAdd(it.name); } return; }
+  const nl = e.target.closest("[data-next-list]"); if (nl){ listAdd(nl.dataset.nextList); return; }
+  if (e.target.closest("#panGo")){
+    const n = $("panName").value.trim(); if (!n){ $("panName").focus(); return; }
+    panAdd(n, Number($("panQty").value) || 1, $("panDate").value || todayISO());
+    $("panName").value = ""; $("panQty").value = "1"; $("panDate").value = todayISO();
+    toast(`${n}: in dispensa`, "ok"); return;
+  }
+  const row = e.target.closest("[data-pan]"); if (row && !e.target.closest("button")) openPanEdit(row.dataset.pan);
+});
+$("view-lista").addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.id === "panName"){ e.preventDefault(); $("panGo").click(); }
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches("[data-pan]")){ e.preventDefault(); openPanEdit(e.target.dataset.pan); }
+});
+$("view-lista").addEventListener("input", e => { if (e.target.id === "panName"){ const pd = panDuration(e.target.value || ""); $("panAdd").querySelector(".note").textContent = e.target.value.trim() && pd ? `Di solito dura ${pd.days} ${pd.days === 1 ? "giorno" : "giorni"} a confezione${pd.src === "stima" ? " (stima iniziale)" : ""}.` : "Quello che spunti nella lista arriva qui da solo, con la data di oggi."; } });
+$("view-lista").addEventListener("change", e => {
+  if (e.target.id === "dispAuto") setProfile("dispAuto", e.target.checked);
+  if (e.target.id === "dispDaLista") setProfile("dispDaLista", e.target.checked);
+});
+function openPanEdit(id){
+  const e = (state.profile.dispensa || []).find(x => x.id === id); if (!e) return;
+  const i = panInfo(e);
+  openPanel(e.name, `<div class="stack" style="gap:12px">
+    <p class="note">${i.dur ? `Dura circa ${i.dur.days} ${i.dur.days === 1 ? "giorno" : "giorni"} a confezione (${i.dur.src === "tue" ? `dai tuoi ultimi ${i.dur.n} acquisti` : "stima iniziale"}). ${i.end ? "Previsto fino al " + new Date(i.end + "T12:00").toLocaleDateString("it-IT", {day:"numeric", month:"long"}) + "." : ""}` : "Non so ancora quanto dura: lo imparo la prima volta che lo segni come finito."}</p>
+    <label>Nome<input id="peName" type="text" maxlength="40" value="${esc(e.name)}"></label>
+    <div class="fields"><label>Comprato il<input id="peBought" type="date" value="${esc(e.bought)}"></label><label>Confezioni<input id="peQty" type="number" inputmode="numeric" min="1" max="99" value="${e.qty || 1}"></label></div>
+    <button class="btn primary" type="button" id="peSave">Salva</button>
+    <div class="fields"><label>Finito il<input id="peEnd" type="date" value="${todayISO()}"></label><button class="btn" type="button" id="peFinish" style="align-self:end">Segna finito</button></div>
+    <button class="btn danger" type="button" id="peDel">Togli senza contarlo</button>
+    <p class="note">«Togli senza contarlo» serve per un prodotto buttato o regalato: non cambia le durate.</p></div>`);
+  $("peSave").addEventListener("click", () => {
+    const n = $("peName").value.trim() || e.name;
+    state.profile.dispensa = state.profile.dispensa.map(x => x.id === id ? {...x, name: n, key: panKey(n), bought: $("peBought").value || x.bought, qty: Math.max(1, Number($("peQty").value) || 1), listed: false} : x);
+    persistProfile(); closePanel(); renderAll(); toast("Salvato", "ok");
+  });
+  $("peFinish").addEventListener("click", () => { const d = $("peEnd").value || todayISO(); if (d < e.bought){ toast("La fine non può essere prima dell'acquisto", "warn"); return; } closePanel(); panFinish(id, d); });
+  $("peDel").addEventListener("click", () => { state.profile.dispensa = state.profile.dispensa.filter(x => x.id !== id); persistProfile(); closePanel(); renderAll(); toast(`${e.name}: tolto dalla dispensa`, "ok"); });
+}
 
 /* ---------- Home su misura ---------- */
 const HOME_BLOCKS = [["hero","Riepilogo"],["monthCard","Questo mese"],["saveCta","Risparmio possibile"],["tilesBlock","Voce per voce"],["donutCard","Come spendi"],["trendCard","Ultimi 6 mesi"]];
